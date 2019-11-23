@@ -7,10 +7,13 @@ import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
             <GooglePlacesAutocomplete 
             placeholder="¿En que direccion?"
             placeholderTextColor='#333'
-            onPress={() => {}}
+            onPress={(data, details) => {
+                console.log()
+            }}
             query={{
                 key: 'AIzaSyCpP_W0pI7G-YJaEG-8k94H7BwnHXIMqZg',
-                language: 'es'
+                language: 'es',
+                components: 'country:cl',
             }}
             textInputProps = {{
                 autoCapitalize: "none",
@@ -67,8 +70,13 @@ import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
 
 
                  },
-                 description: {},
-                 row: {},
+                 description: {
+                     fontSize: 16,
+                 },
+                 row: {
+                     padding: 20,
+                     height: 58
+                 },
             }}
             />
         );
