@@ -6,6 +6,8 @@ import Map from './components/Map';
 import Register from './components/Loggin-Register/Register'
 import Login from './components/Loggin-Register/Login'
 import Loading from './components/Loading/index'
+import Perfil from './components/Perfil/index'
+import PinInfo from './components/PinInfo/index'
 import * as firebase from "firebase";
 
 var firebaseConfig = {
@@ -24,7 +26,9 @@ var firebaseConfig = {
   }
 const AppDrawer = createDrawerNavigator(
     {
-        Inicio:{screen: Map}
+        Inicio:{screen: Map},
+        Perfil: {screen: Perfil},
+        PinInfo:{screen: PinInfo}
     }
 )
 const AppSwitch = createSwitchNavigator(
@@ -33,6 +37,8 @@ const AppSwitch = createSwitchNavigator(
         Login: Login,
         Loading: Loading,
         Register: Register,
+        Perfil: Perfil,
+        PinInfo: PinInfo
     },
     {
         initialRouteName: "Loading"

@@ -4,6 +4,7 @@ import { StyleSheet, View, TouchableOpacity, Image, Dimensions, Text, SafeAreaVi
 import MapView, { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import {createDrawerNavigator, DrawerItems, DrawerActions} from 'react-navigation-drawer';
+import nextId from "react-id-generator";
 
 import Search from '../Search';
 import * as firebase from "firebase";
@@ -19,6 +20,7 @@ export default class Map extends Component {
     markers: []
   };
   async componentDidMount() {
+    json = await
     Geolocation.getCurrentPosition(
       ({ coords: { latitude, longitude } }) => {
         this.setState({
@@ -37,7 +39,24 @@ export default class Map extends Component {
         enableHighAccuracy: true,
         maximumAge: 1000,
       }
-    )
+    );
+    firebase.database().ref("Pins").on("value", (data)=> {
+      var json = data.toJSON()
+      for (key in json) {
+        this.setState({
+          markers: [
+            ...this.state.markers,
+            {
+              coordinate: {
+                latitude: json[key]["latitude"],
+                longitude: json[key]["longitud"]
+              }
+
+            }
+          ]
+        });
+     }
+    })
   };
   logOut = () => {
     firebase.auth().signOut();
@@ -102,15 +121,24 @@ export default class Map extends Component {
     console.log(this.state.region)
   };
   handlePress = () => {
+    pinId = nextId();
     this.setState({
       markers: [
         ...this.state.markers,
         {
-          coordinate: this.state.region,
-          cost: 2
+          coordinate: {latitude: this.state.region.latitude,
+            longitude: this.state.region.longitude
+          },
+          identifier: pinId,
+          
         }
       ]
-    })
+    });
+    
+    firebase.database().ref('Pins/' + pinId).set({
+        latitude: this.state.region.latitude,
+        longitud: this.state.region.longitude,
+      });
   }
   render() {
     const { region } = this.state;
@@ -150,9 +178,10 @@ export default class Map extends Component {
       >
         {this.state.markers.map((marker) => {
           return (
-            <Marker {...marker} >
+            <Marker identifier = {marker.identifier}
+            coordinate = {marker.coordinate}
+            onPress = {()=>{this.props.navigation.navigate("PinInfo")}}>
               <View style={styles.marker}>
-                <Text style={styles.text}>{marker.cost}</Text>
               </View>
             </Marker>
           )
