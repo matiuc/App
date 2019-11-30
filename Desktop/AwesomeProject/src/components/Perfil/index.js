@@ -5,12 +5,6 @@ import * as firebase from "firebase";
 const WIDTH = Dimensions.get('window').width
 const HEIGHT = Dimensions.get('window').height
 
-const userId = firebase.auth().currentUser.uid;
-// name = () => {firebase.database().ref("users").child(userId).once("value", (data) => {
-//     json = data.toJSON();
-//     clog(json);
-// })
-
 
 export default class Perfil extends Component {
 
@@ -24,6 +18,7 @@ export default class Perfil extends Component {
     };
 
     async componentDidMount() {
+        const userId = firebase.auth().currentUser.uid;
         firebase.database().ref("users").child(userId).once("value", (data) => {
             json = data.toJSON()
             name = json["username"]
