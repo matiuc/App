@@ -1,20 +1,76 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text, Image, Dimensions, TouchableOpacity, TextInput } from 'react-native';
-import * as firebase from "firebase";
+import ImagePicker from 'react-native-image-picker';
+import { createDrawerNavigator, DrawerItems, DrawerActions } from 'react-navigation-drawer';
 
+import * as firebase from "firebase";
 const WIDTH = Dimensions.get('window').width
 const HEIGHT = Dimensions.get('window').height
 
 
 export default class Perfil extends Component {
+    uriToBlob = (uri) => {
 
+        return new Promise((resolve, reject) => {
+
+            const xhr = new XMLHttpRequest();
+
+            xhr.onload = function () {
+                // return the blob
+                resolve(xhr.response);
+            };
+
+            xhr.onerror = function () {
+                // something went wrong
+                reject(new Error('uriToBlob failed'));
+            };
+
+            // this helps us get a blob
+            xhr.responseType = 'blob';
+
+            xhr.open('GET', uri, true);
+            xhr.send(null);
+
+        });
+
+    }
     hola = "hol";
 
     state = {
         name: "",
         mail: '',
         pass: '',
-        errorMessage: null
+        errorMessage: null,
+        avatarSource: null,
+        newImage: null,
+    };
+    handleChooseImage = () => {
+        ImagePicker.showImagePicker({ noData: true, mediaType: "photo" }, (response) => {
+
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.error) {
+                console.log('ImagePicker Error: ', response.error);
+            } else if (response.customButton) {
+                console.log('User tapped custom button: ', response.customButton);
+            } else {
+                this.setState({
+                    avatarSource: { uri: response.uri }
+                })
+                this.uriToBlob(response.uri).then((resolve) => {
+                    userId = firebase.auth().currentUser.uid
+                    firebase.storage().ref().child(userId + "/profileImage").put(resolve)
+                    firebase.storage().ref().child(userId + "/profileImage").getDownloadURL().then(url =>
+                        firebase.database().ref().child('users/' + userId).set({
+                            username: this.state.name,
+                            email: this.state.mail,
+                            profileImage: url,
+                        })
+
+                    )
+                })
+            }
+        });
     };
 
     async componentDidMount() {
@@ -23,12 +79,18 @@ export default class Perfil extends Component {
             json = data.toJSON()
             name = json["username"]
             mail = json["email"]
-            this.setState({name:name,
-            mail:mail});
-            
-        })}
+            url = json["profileImage"]
+            this.setState({
+                name: name,
+                mail: mail,
+                avatarSource: { uri: url }
+            });
 
-    
+
+        })
+    }
+
+
 
     // onChangeMail = mail => this.setState({ mail });
     // onChangePass = pass => this.setState({ pass });
@@ -40,31 +102,56 @@ export default class Perfil extends Component {
     }
     render() {
         return (
+
             <View style={styles.MainContainer}>
-                <View style={styles.image}>
-                    <Image source={require('AwesomeProject/assets/icprofile.png')} />
-                </View>
+                <TouchableOpacity style={styles.image} onPress={this.handleChooseImage}>
+                    <Image source={this.state.avatarSource}
+                        style={{ width: 150, height: 150, borderRadius: 100 }}
+                        loadingIndicatorSource={true} />
+                </TouchableOpacity>
+
 
                 <View style={styles.form}>
                     <View>
                         <Text style={styles.inputTitle}>Nombre</Text>
+                        <TouchableOpacity style={styles.editName} onPress = {()=>{this.props.navigation.navigate("ChangeName", {userName: this.state.name})}}>
+                            <Image source={require('AwesomeProject/assets/edit.jpg')}
+
+                                style={{ width: 30, height: 30 }} />
+                        </TouchableOpacity>
                         <Text style={styles.nombre}>{this.state.name}</Text>
                     </View>
 
                     <View>
                         <Text style={styles.inputTitle}>Email Address</Text>
+                        <TouchableOpacity style={styles.editEmail} onPress={() => {this.props.navigation.navigate("ChangeEmail")}}>
+                            <Image source={require('AwesomeProject/assets/edit.jpg')}
+
+                                style={{ width: 30, height: 30 }} />
+                        </TouchableOpacity>
                         <Text style={styles.nombre}>{this.state.mail}</Text>
                     </View>
 
                     <View>
                         <Text style={styles.inputTitle}>Password</Text>
+                        <TouchableOpacity style={styles.editPassword} onPress={() => {this.props.navigation.navigate("ChangePass")}}>
+                            <Image source={require('AwesomeProject/assets/edit.jpg')}
+
+                                style={{ width: 30, height: 30 }} />
+                        </TouchableOpacity>
                         <Text style={styles.nombre}>*********</Text>
                     </View>
                 </View>
 
                 <TouchableOpacity style={styles.button} onPress={this.logOut}>
-                    <Text style={{ color: "#FFF", fontWeight: "500" }}>Log Out</Text>
+                    <Text style={{ color: "#FFF", fontWeight: "500" }}>Cerrar Sesión</Text>
                 </TouchableOpacity>
+                <TouchableOpacity style={styles.home} onPress={() => this.props.navigation.dispatch(DrawerActions.openDrawer())}>
+                    <Image source={require('AwesomeProject/assets/menu.png')}
+
+                        style={{ width: 50, height: 50 }} />
+                </TouchableOpacity>
+
 
             </View>
         );
@@ -73,51 +160,102 @@ export default class Perfil extends Component {
 
 const styles = StyleSheet.create({
     MainContainer: {
-        flex: 0,
-        paddingTop: 0,
         alignItems: 'center',
-        marginTop: 100,
-        justifyContent: 'center',
+        top: 0,
         // backgroundColor: "#192879"
     },
     image: {
-        marginLeft: 0,
-        marginTop: 0,
-        height: 0,
-        width: 0,
-        alignItems: "center"
-    },
-    username: {
-        marginLeft: 0,
-        marginTop: 150,
-        height: 30,
-        width: 120,
-        fontSize: 16
+        top: HEIGHT / 7,
+        alignItems: "center",
+        justifyContent: "center"
     },
     button: {
         top: 40,
         marginHorizontal: 0,
         backgroundColor: "#E9446A",
         height: 52,
-        width: 100,
+        width: 140,
         alignItems: "center",
         justifyContent: "center"
     },
     inputTitle: {
-        marginLeft: 0,
-        marginTop: 30,
+        marginTop: 20,
         height: 30,
-        width: 120,
-        fontSize: 13
+        width: 200,
+        fontSize: 23
     },
     form: {
         marginLeft: 0,
-        marginTop: 140,
+        marginTop: HEIGHT / 5.5,
     },
     nombre: {
         marginLeft: 0,
         marginTop: 0,
-        fontSize: 16
-    }
+        fontSize: 18
+    },
+    home: {
+        zIndex: 9,
+        position: 'absolute',
+        flexDirection: 'row',
+        width: 45,
+        height: 45,
+        top: HEIGHT / 25,
+        left: WIDTH / 20,
+        borderRadius: 50,
+        backgroundColor: 'white',
+        alignItems: 'center',
+        shadowColor: 'black',
+        justifyContent: 'center'
+
+
+    },
+    editName: {
+        zIndex: 9,
+        position: 'absolute',
+        flexDirection: 'row',
+        width: 45,
+        height: 45,
+        marginTop: 14,
+        marginLeft: 85 ,
+        borderRadius: 50,
+        backgroundColor: 'white',
+        alignItems: 'center',
+        shadowColor: 'black',
+        justifyContent: 'center'
+
+
+    },
+    editEmail: {
+        zIndex: 9,
+        position: 'absolute',
+        flexDirection: 'row',
+        width: 45,
+        height: 45,
+        marginTop: 14,
+        marginLeft: 145 ,
+        borderRadius: 50,
+        backgroundColor: 'white',
+        alignItems: 'center',
+        shadowColor: 'black',
+        justifyContent: 'center'
+
+
+    },
+    editPassword: {
+        zIndex: 9,
+        position: 'absolute',
+        flexDirection: 'row',
+        width: 45,
+        height: 45,
+        marginTop: 14,
+        marginLeft: 100 ,
+        borderRadius: 50,
+        backgroundColor: 'white',
+        alignItems: 'center',
+        shadowColor: 'black',
+        justifyContent: 'center'
+
+
+    },
 
 });

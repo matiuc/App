@@ -34,7 +34,7 @@ import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
             styles = {{ 
                 container: {
                     position: 'absolute',
-                    top: 60,
+                    bottom: 30,
                     width: '100%',
                 },
                 textInputContainer: {

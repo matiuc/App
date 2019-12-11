@@ -8,6 +8,10 @@ import Login from './components/Loggin-Register/Login'
 import Loading from './components/Loading/index'
 import Perfil from './components/Perfil/index'
 import PinInfo from './components/PinInfo/index'
+import ChangeName  from './components/Perfil/ChangeName'
+import ChangeEmail  from './components/Perfil/ChangeEmail'
+import ChangePass  from './components/Perfil/ChangePass'
+
 import * as firebase from "firebase";
 
 var firebaseConfig = {
@@ -38,7 +42,10 @@ const AppSwitch = createSwitchNavigator(
         Loading: Loading,
         Register: Register,
         Perfil: Perfil,
-        PinInfo: PinInfo
+        PinInfo: PinInfo,
+        ChangeName: ChangeName,
+        ChangeEmail: ChangeEmail,
+        ChangePass: ChangePass,
     },
     {
         initialRouteName: "Loading"

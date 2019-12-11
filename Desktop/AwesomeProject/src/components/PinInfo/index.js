@@ -16,7 +16,7 @@ export default class PinInfo extends Component {
             <View style={styles.MainContainer}>
                 <Text style={styles.username}> Nombre </Text>
                 <View style={styles.image}>
-                    <Image source={require('AwesomeProject/assets/icprofile.png')} />
+                    <Image source={require('AwesomeProject/assets/add.png')} />
                 </View>
 
                 <TouchableOpacity style={styles.button} onPress={this.logOut}>

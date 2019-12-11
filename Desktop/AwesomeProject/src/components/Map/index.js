@@ -42,6 +42,7 @@ export default class Map extends Component {
     );
     firebase.database().ref("Pins").on("value", (data)=> {
       var json = data.toJSON()
+      console.log(json)
       for (key in json) {
         this.setState({
           markers: [
@@ -58,10 +59,6 @@ export default class Map extends Component {
      }
     })
   };
-  logOut = () => {
-    firebase.auth().signOut();
-    this.props.navigation.navigate("Login")
-  }
   onPress = () => {
     Geolocation.getCurrentPosition(
       ({ coords: { latitude, longitude } }) => {
@@ -122,18 +119,18 @@ export default class Map extends Component {
   };
   handlePress = () => {
     pinId = nextId();
-    this.setState({
-      markers: [
-        ...this.state.markers,
-        {
-          coordinate: {latitude: this.state.region.latitude,
-            longitude: this.state.region.longitude
-          },
-          identifier: pinId,
+    // this.setState({
+    //   markers: [
+    //     ...this.state.markers,
+    //     {
+    //       coordinate: {latitude: this.state.region.latitude,
+    //         longitude: this.state.region.longitude
+    //       },
+    //       identifier: pinId,
           
-        }
-      ]
-    });
+    //     }
+    //   ]
+    // });
     
     firebase.database().ref('Pins/' + pinId).set({
         latitude: this.state.region.latitude,
@@ -151,11 +148,6 @@ export default class Map extends Component {
           style={{ width: 50, height: 50 }} />
       </TouchableOpacity>
       <TouchableOpacity style={styles.button2} onPress={this.handlePress}>
-        <Image source={require('AwesomeProject/assets/add.png')}
-
-          style={{ width: 60, height: 60 }} />
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.button3} onPress={this.logOut}>
         <Image source={require('AwesomeProject/assets/add.png')}
 
           style={{ width: 60, height: 60 }} />
@@ -216,8 +208,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: 50,
     height: 50,
-    bottom: HEIGHT / 7.36,
-    right: WIDTH / 20,
+    bottom: HEIGHT / 7.36 + HEIGHT / 12,
+    left: WIDTH / 20,
     borderRadius: 50,
     backgroundColor: 'white',
     alignItems: 'center',
@@ -242,29 +234,13 @@ const styles = StyleSheet.create({
 
 
   },
-  button3: {
-    zIndex: 9,
-    position: 'absolute',
-    flexDirection: 'row',
-    width: 45,
-    height: 45,
-    bottom: HEIGHT / 7.36 + HEIGHT / 12,
-    left: WIDTH / 20,
-    borderRadius: 50,
-    backgroundColor: 'white',
-    alignItems: 'center',
-    shadowColor: 'black',
-    justifyContent: 'center'
-
-
-  },
   button4: {
     zIndex: 9,
     position: 'absolute',
     flexDirection: 'row',
     width: 45,
     height: 45,
-    bottom: HEIGHT / 7.36,
+    top: HEIGHT / 25,
     left: WIDTH / 20,
     borderRadius: 50,
     backgroundColor: 'white',
