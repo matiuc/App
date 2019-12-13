@@ -17,7 +17,6 @@ class Login extends React.Component {
 
   handleLogin = () => {
     const {mail, pass} = this.state
-
     firebase.auth().signInWithEmailAndPassword(mail, pass).catch(error=>this.setState({errorMessage: error.message}))
   }
 
@@ -62,11 +61,19 @@ class Login extends React.Component {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    style={{ alignSelf: "center", marginTop: 3,top:50, justifyContent:"center", height:50}}
+                    style={{ alignSelf: "center", marginTop: 3,top:50, justifyContent:"center", height:40}}
                     onPress={() => this.props.navigation.navigate("Register")}
                 >
                     <Text style={{ color: "#414959", fontSize: 13}}>
                         ¿Primera vez con nosotros? <Text style={{ fontWeight: "500", color: "#E9446A" }}>Registrarse</Text>
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={{ alignSelf: "center", marginTop: 0,top:50, justifyContent:"center", height:40}}
+                    onPress={() => this.props.navigation.navigate("ResetPass", {"mail" : this.state.mail})}
+                >
+                    <Text style={{ color: "#414959", fontSize: 13}}>
+                        ¿Olvidaste tu contraseña? <Text style={{ fontWeight: "500", color: "#E9446A" }}>Recuperar</Text>
                     </Text>
                 </TouchableOpacity>
             </View>

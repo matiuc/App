@@ -6,80 +6,52 @@ const WIDTH = Dimensions.get('window').width
 const HEIGHT = Dimensions.get('window').height
 
 
-export default class ChangeName extends Component {
+export default class ResetPass extends Component {
     state = {
         mail: '',
-        pass: '',
     };
-    onChangePass = pass => this.setState({ pass });
+    onChangeText = mail => this.setState({ mail });
+    handleChangeName = () => {
+        var auth = firebase.auth();
 
-    onChangeMail = mail => this.setState({ mail });
-
-    reauthenticate = (pass) => {
-        var user = firebase.auth().currentUser;
-        var cred = firebase.auth.EmailAuthProvider.credential(user.email, pass);
-        return user.reauthenticateWithCredential(cred);
-    }
-    handleChangeMail = () => {
-        this.reauthenticate(this.state.pass).then(() => {
-            var user = firebase.auth().currentUser;
-            user.updateEmail(this.state.mail).then(() => {
-                userId = firebase.auth().currentUser.uid
-                firebase.database().ref('users').child(userId).update({
-                    email: this.state.mail,
-                })
-                Alert.alert("Email Cambiado con Éxito")
-                this.props.navigation.navigate("Perfil")
-
-            }).catch((error) => {
-                Alert.alert(error.message)
-            })
-        }).catch((error) => {
+        auth.sendPasswordResetEmail(this.state.mail).then(function () {
+            Alert.alert("Correo Enviado Exitosamente."),
+            this.props.navigation.navigate("Login")
+        }).catch(function (error) {
             Alert.alert(error.message)
         });
+        
+
     }
     handleCancel = () => {
-        this.props.navigation.navigate("Perfil")
+        this.props.navigation.navigate("Login")
     }
 
     render() {
-        const mail = this.props.navigation.getParam('email', 'NO-Mail');
-
+        const mail = this.props.navigation.getParam('mail', '');
         return (
 
             <View style={{ flex: 1 }}>
-                <TouchableOpacity style={styles.back} onPress={() => this.props.navigation.navigate("Perfil")}>
+                <TouchableOpacity style={styles.back} onPress={() => this.props.navigation.navigate("Login")}>
                     <Image source={require('AwesomeProject/assets/back.png')}
 
                         style={{ width: 50, height: 50 }} />
                 </TouchableOpacity>
                 <View style={{ flex: 1, top: HEIGHT / 8 }}>
                     <Text style={{
-                        color: "#414959", fontSize: 40, textAlign: 'center', fontWeight: "700", textShadowRadius: 3, textShadowColor: 'rgba(255, 162, 127, 0.75)',
+                        color: "#414959", fontSize: 30, textAlign: 'center', fontWeight: "bold", textShadowRadius: 3, textShadowColor: 'rgba(255, 162, 127, 0.75)',
                         textShadowOffset: { width: 1, height: -1 }
                     }}>
-                        ¿Quieres cambiar tu email?
+                        ¿No recuerdas tu contraseña?
           </Text>
-
-
-                </View>
-                <View style={{ flex: 1, }}>
-                    <Text style={{ color: "#414959", fontSize: 25, fontWeight: "700", left: WIDTH / 10, top: HEIGHT / 20 }}>Email Nuevo</Text>
+                    <Text style={{ color: "#414959", fontSize: 15, fontWeight: "bold", top: 15, textAlign: 'center' }}>No te preocupes, te enviaremos un mail a tu dirección para que la reestablezcas.</Text>
+                    <Text style={{ color: "#414959", fontSize: 25, fontWeight: "bold", left: WIDTH / 10, top: HEIGHT / 20 }}>Email</Text>
                     <TextInput
-                        style={styles.input}
                         placeholder={mail}
+                        style={styles.input}
                         autoCapitalize='none'
-                        onChangeText={this.onChangeMail}
+                        onChangeText={this.onChangeText}
                         value={this.state.mail}
-
-                    ></TextInput>
-                    <Text style={{ color: "#414959", fontSize: 25, fontWeight: "700", left: WIDTH / 10, top: HEIGHT / 12 }}>Contraseña Actual</Text>
-                    <TextInput
-                        style={styles.input2}
-                        autoCapitalize='none'
-                        secureTextEntry={true}
-                        onChangeText={this.onChangePass}
-                        value={this.state.pass}
 
                     ></TextInput>
                 </View>
@@ -91,8 +63,8 @@ export default class ChangeName extends Component {
                         </TouchableOpacity>
                     </View>
                     <View style={{ flex: 1, justifyContent: 'flex-end', flexDirection: 'row' }}>
-                        <TouchableOpacity style={styles.button1} onPress={this.handleChangeMail}>
-                            <Text style={{ color: "#FFF", fontWeight: "500", }}>Cambiar Email</Text>
+                        <TouchableOpacity style={styles.button1} onPress={this.handleChangeName}>
+                            <Text style={{ color: "#FFF", fontWeight: "500", textAlign: 'center' }}>Reestablecer Contraseña</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -129,28 +101,18 @@ const styles = StyleSheet.create({
         fontSize: 20,
         color: "#161F3D"
     },
-    input2: {
-        top: HEIGHT / 9,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderTopWidth: StyleSheet.hairlineWidth,
-        borderWidth: StyleSheet.hairlineWidth,
-        height: 50,
-        marginHorizontal: WIDTH / 10,
-        fontSize: 20,
-        color: "#161F3D"
-    },
     button1: {
-        top: HEIGHT / 20,
+        top: 0,
         right: WIDTH / 10,
         backgroundColor: "#E9446A",
         borderRadius: 4,
         height: 52,
-        width: 150,
+        width: 130,
         alignItems: "center",
         justifyContent: "center"
     },
     button2: {
-        top: HEIGHT / 20,
+        top: 0,
         left: WIDTH / 10,
         backgroundColor: "#E9446A",
         borderRadius: 4,

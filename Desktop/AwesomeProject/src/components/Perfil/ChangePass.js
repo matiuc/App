@@ -15,14 +15,24 @@ export default class ChangeName extends Component {
 
     onChangeNew = newPass => this.setState({ newPass });
     
-    handleChangeName = () => {
-        userId = firebase.auth().currentUser.uid
-        firebase.database().ref('users').child(userId).update({
-            username: this.state.name,
-        })
-        Alert.alert("Nombre Cambiado con Éxito.")
-        this.props.navigation.navigate("Perfil")
-
+    reauthenticate = (currentPass) =>{
+        var user = firebase.auth().currentUser;
+        var cred = firebase.auth.EmailAuthProvider.credential(user.email, currentPass);
+        return user.reauthenticateWithCredential(cred);
+    } 
+    handleChangePass = () => {
+        this.reauthenticate(this.state.currentPass).then(()=> {
+            var user = firebase.auth().currentUser;
+            user.updatePassword(this.state.newPass).then(() => {
+                Alert.alert("Contraseña Cambiada con Éxito")
+                this.props.navigation.navigate("Perfil")
+    
+            }).catch((error) => {
+                Alert.alert(error.message)
+            })
+        }).catch((error) => {
+            Alert.alert(error.message)
+        }); 
     }
     handleCancel = () => {
         this.props.navigation.navigate("Perfil")
@@ -75,8 +85,8 @@ export default class ChangeName extends Component {
                         </TouchableOpacity>
                     </View>
                     <View style={{ flex: 1, justifyContent: 'flex-end', flexDirection: 'row' }}>
-                        <TouchableOpacity style={styles.button1} onPress={this.handleChangeName}>
-                            <Text style={{ color: "#FFF", fontWeight: "500", }}>Cambiar Nombre</Text>
+                        <TouchableOpacity style={styles.button1} onPress={this.handleChangePass}>
+                            <Text style={{ color: "#FFF", fontWeight: "500", }}>Cambiar Contraseña</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -129,7 +139,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#E9446A",
         borderRadius: 4,
         height: 52,
-        width: 130,
+        width: 150,
         alignItems: "center",
         justifyContent: "center"
     },

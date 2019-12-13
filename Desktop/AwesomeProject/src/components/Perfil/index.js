@@ -34,7 +34,6 @@ export default class Perfil extends Component {
         });
 
     }
-    hola = "hol";
 
     state = {
         name: "",
@@ -44,7 +43,7 @@ export default class Perfil extends Component {
         avatarSource: null,
         newImage: null,
     };
-    handleChooseImage = () => {
+    handleChooseImage = async () => {
         ImagePicker.showImagePicker({ noData: true, mediaType: "photo" }, (response) => {
 
             if (response.didCancel) {
@@ -59,12 +58,15 @@ export default class Perfil extends Component {
                 })
                 this.uriToBlob(response.uri).then((resolve) => {
                     userId = firebase.auth().currentUser.uid
-                    firebase.storage().ref().child(userId + "/profileImage").put(resolve)
-                    firebase.storage().ref().child(userId + "/profileImage").getDownloadURL().then(url =>
+                    const ref = firebase.storage().ref(userId).child("/profileImage")
+                    await ref.put(resolve)
+                    firebase.storage().ref(userId).child("/profileImage").getDownloadURL().then(url =>
                         firebase.database().ref().child('users/' + userId).set({
                             username: this.state.name,
                             email: this.state.mail,
                             profileImage: url,
+                        }).catch((error) => {
+                            console.log(error.message)
                         })
 
                     )
@@ -114,7 +116,7 @@ export default class Perfil extends Component {
                 <View style={styles.form}>
                     <View>
                         <Text style={styles.inputTitle}>Nombre</Text>
-                        <TouchableOpacity style={styles.editName} onPress = {()=>{this.props.navigation.navigate("ChangeName", {userName: this.state.name})}}>
+                        <TouchableOpacity style={styles.editName} onPress={() => { this.props.navigation.navigate("ChangeName", { userName: this.state.name }) }}>
                             <Image source={require('AwesomeProject/assets/edit.jpg')}
 
                                 style={{ width: 30, height: 30 }} />
@@ -124,7 +126,7 @@ export default class Perfil extends Component {
 
                     <View>
                         <Text style={styles.inputTitle}>Email Address</Text>
-                        <TouchableOpacity style={styles.editEmail} onPress={() => {this.props.navigation.navigate("ChangeEmail")}}>
+                        <TouchableOpacity style={styles.editEmail} onPress={() => { this.props.navigation.navigate("ChangeEmail", { email: this.state.mail }) }}>
                             <Image source={require('AwesomeProject/assets/edit.jpg')}
 
                                 style={{ width: 30, height: 30 }} />
@@ -134,7 +136,7 @@ export default class Perfil extends Component {
 
                     <View>
                         <Text style={styles.inputTitle}>Password</Text>
-                        <TouchableOpacity style={styles.editPassword} onPress={() => {this.props.navigation.navigate("ChangePass")}}>
+                        <TouchableOpacity style={styles.editPassword} onPress={() => { this.props.navigation.navigate("ChangePass") }}>
                             <Image source={require('AwesomeProject/assets/edit.jpg')}
 
                                 style={{ width: 30, height: 30 }} />
@@ -216,7 +218,7 @@ const styles = StyleSheet.create({
         width: 45,
         height: 45,
         marginTop: 14,
-        marginLeft: 85 ,
+        marginLeft: 85,
         borderRadius: 50,
         backgroundColor: 'white',
         alignItems: 'center',
@@ -232,7 +234,7 @@ const styles = StyleSheet.create({
         width: 45,
         height: 45,
         marginTop: 14,
-        marginLeft: 145 ,
+        marginLeft: 145,
         borderRadius: 50,
         backgroundColor: 'white',
         alignItems: 'center',
@@ -248,7 +250,7 @@ const styles = StyleSheet.create({
         width: 45,
         height: 45,
         marginTop: 14,
-        marginLeft: 100 ,
+        marginLeft: 100,
         borderRadius: 50,
         backgroundColor: 'white',
         alignItems: 'center',
