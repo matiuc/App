@@ -26,7 +26,7 @@ class Register extends React.Component {
             username: this.state.name,
             email: this.state.mail,
             profileImage: url,
-          })
+          }),
 
     )})
       .catch(error => this.setState({ errorMessage: error.message }))

@@ -43,7 +43,7 @@ export default class Perfil extends Component {
         avatarSource: null,
         newImage: null,
     };
-    handleChooseImage = async () => {
+    handleChooseImage = () => {
         ImagePicker.showImagePicker({ noData: true, mediaType: "photo" }, (response) => {
 
             if (response.didCancel) {
@@ -56,10 +56,9 @@ export default class Perfil extends Component {
                 this.setState({
                     avatarSource: { uri: response.uri }
                 })
-                this.uriToBlob(response.uri).then((resolve) => {
+                this.uriToBlob(response.uri).then(async(resolve) => {
                     userId = firebase.auth().currentUser.uid
-                    const ref = firebase.storage().ref(userId).child("/profileImage")
-                    await ref.put(resolve)
+                    const esperar = await firebase.storage().ref(userId).child("/profileImage").put(resolve)
                     firebase.storage().ref(userId).child("/profileImage").getDownloadURL().then(url =>
                         firebase.database().ref().child('users/' + userId).set({
                             username: this.state.name,
