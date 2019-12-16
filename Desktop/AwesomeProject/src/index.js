@@ -12,6 +12,7 @@ import ChangeName  from './components/Perfil/ChangeName'
 import ChangeEmail  from './components/Perfil/ChangeEmail'
 import ChangePass  from './components/Perfil/ChangePass'
 import ResetPass from './components/Loggin-Register/ResetPass'
+import Create from './components/PinInfo/Categorias/Crear'
 
 import * as firebase from "firebase";
 
@@ -33,12 +34,12 @@ const AppDrawer = createDrawerNavigator(
     {
         Inicio:{screen: Map},
         Perfil: {screen: Perfil},
-        PinInfo:{screen: PinInfo}
     }
 )
 const AppSwitch = createSwitchNavigator(
     {
         App: AppDrawer,
+        Mapa: Map,
         Login: Login,
         Loading: Loading,
         Register: Register,
@@ -48,6 +49,8 @@ const AppSwitch = createSwitchNavigator(
         ChangeEmail: ChangeEmail,
         ChangePass: ChangePass,
         ResetPass: ResetPass,
+        Create: Create,
+
     },
     {
         initialRouteName: "Loading"

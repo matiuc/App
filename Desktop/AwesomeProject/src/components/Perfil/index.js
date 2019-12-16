@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, Image, Dimensions, TouchableOpacity, TextInput } from 'react-native';
+import { StyleSheet, View, Text, Image, Dimensions, TouchableOpacity, TextInput, ActivityIndicator } from 'react-native';
 import ImagePicker from 'react-native-image-picker';
 import { createDrawerNavigator, DrawerItems, DrawerActions } from 'react-navigation-drawer';
-
+import FastImage from "react-native-fast-image"
 import * as firebase from "firebase";
 const WIDTH = Dimensions.get('window').width
 const HEIGHT = Dimensions.get('window').height
@@ -34,7 +34,6 @@ export default class Perfil extends Component {
         });
 
     }
-
     state = {
         name: "",
         mail: '',
@@ -42,7 +41,11 @@ export default class Perfil extends Component {
         errorMessage: null,
         avatarSource: null,
         newImage: null,
+        loading: null,
     };
+    handleBack = () => {
+        this.props.navigation.navigate("Mapa")
+    }
     handleChooseImage = () => {
         ImagePicker.showImagePicker({ noData: true, mediaType: "photo" }, (response) => {
 
@@ -56,7 +59,7 @@ export default class Perfil extends Component {
                 this.setState({
                     avatarSource: { uri: response.uri }
                 })
-                this.uriToBlob(response.uri).then(async(resolve) => {
+                this.uriToBlob(response.uri).then(async (resolve) => {
                     userId = firebase.auth().currentUser.uid
                     const esperar = await firebase.storage().ref(userId).child("/profileImage").put(resolve)
                     firebase.storage().ref(userId).child("/profileImage").getDownloadURL().then(url =>
@@ -76,15 +79,17 @@ export default class Perfil extends Component {
 
     async componentDidMount() {
         const userId = firebase.auth().currentUser.uid;
-        firebase.database().ref("users").child(userId).once("value", (data) => {
+        firebase.database().ref("users").child(userId).once("value", async (data) => {
             json = data.toJSON()
+            url = json["profileImage"]
             name = json["username"]
             mail = json["email"]
-            url = json["profileImage"]
+
             this.setState({
+                avatarSource: { uri: url , priority: FastImage.priority.high,},
                 name: name,
                 mail: mail,
-                avatarSource: { uri: url }
+
             });
 
 
@@ -106,9 +111,14 @@ export default class Perfil extends Component {
 
             <View style={styles.MainContainer}>
                 <TouchableOpacity style={styles.image} onPress={this.handleChooseImage}>
-                    <Image source={this.state.avatarSource}
+                    <FastImage
                         style={{ width: 150, height: 150, borderRadius: 100 }}
-                        loadingIndicatorSource={true} />
+                        source={this.state.avatarSource}
+                        onLoadStart={() => { this.setState({ loading: true }) }}
+                        onLoadEnd={() => { this.setState({ loading: false }) }}
+                    >
+                        <ActivityIndicator style={{top: HEIGHT/12}} size="large" animating={this.state.loading}/>
+                    </FastImage>
                 </TouchableOpacity>
 
 
@@ -147,11 +157,11 @@ export default class Perfil extends Component {
                 <TouchableOpacity style={styles.button} onPress={this.logOut}>
                     <Text style={{ color: "#FFF", fontWeight: "500" }}>Cerrar Sesión</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.home} onPress={() => this.props.navigation.dispatch(DrawerActions.openDrawer())}>
-                    <Image source={require('AwesomeProject/assets/menu.png')}
+                <TouchableOpacity style={styles.back} onPress={this.handleBack}>
+                <Image source={require('AwesomeProject/assets/back.png')}
 
-                        style={{ width: 50, height: 50 }} />
-                </TouchableOpacity>
+                    style={{ width: 50, height: 50 }} />
+            </TouchableOpacity>
 
 
             </View>
@@ -257,6 +267,22 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
 
 
+    },
+    back: {
+        zIndex: 9,
+        position: 'absolute',
+        flexDirection: 'row',
+        width: 50,
+        height: 50,
+        top: HEIGHT / 25,
+        left: WIDTH / 20,
+        borderRadius: 50,
+        backgroundColor: 'white',
+        alignItems: 'center',
+        shadowColor: 'black',
+        justifyContent: 'center'
+    
+    
     },
 
 });

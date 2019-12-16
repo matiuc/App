@@ -118,24 +118,13 @@ export default class Map extends Component {
     console.log(this.state.region)
   };
   handlePress = () => {
-    pinId = nextId();
-    // this.setState({
-    //   markers: [
-    //     ...this.state.markers,
-    //     {
-    //       coordinate: {latitude: this.state.region.latitude,
-    //         longitude: this.state.region.longitude
-    //       },
-    //       identifier: pinId,
-          
-    //     }
-    //   ]
-    // });
-    
-    firebase.database().ref('Pins/' + pinId).set({
-        latitude: this.state.region.latitude,
-        longitud: this.state.region.longitude,
-      });
+    this.props.navigation.navigate("PinInfo")
+    // pinId = nextId();
+
+    // firebase.database().ref('Pins/' + pinId).set({
+    //     latitude: this.state.region.latitude,
+    //     longitud: this.state.region.longitude,
+    //   });
   }
   render() {
     const { region } = this.state;
@@ -208,7 +197,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: 50,
     height: 50,
-    bottom: HEIGHT / 7.36 + HEIGHT / 12,
+    bottom: HEIGHT / 7.36 ,
     left: WIDTH / 20,
     borderRadius: 50,
     backgroundColor: 'white',
@@ -224,7 +213,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: 45,
     height: 45,
-    bottom: HEIGHT / 7.36 + HEIGHT / 12,
+    bottom: HEIGHT / 7.36 ,
     right: WIDTH / 20,
     borderRadius: 50,
     backgroundColor: 'white',

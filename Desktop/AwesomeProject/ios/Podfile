@@ -21,6 +21,7 @@ target 'AwesomeProject' do
   pod 'React-RCTText', :path => '../node_modules/react-native/Libraries/Text'
   pod 'React-RCTVibration', :path => '../node_modules/react-native/Libraries/Vibration'
   pod 'React-Core/RCTWebSocket', :path => '../node_modules/react-native/'
+  pod 'RNDateTimePicker', :path => '../node_modules/@react-native-community/datetimepicker/RNDateTimePicker.podspec'
 
   pod 'React-cxxreact', :path => '../node_modules/react-native/ReactCommon/cxxreact'
   pod 'React-jsi', :path => '../node_modules/react-native/ReactCommon/jsi'
@@ -37,6 +38,10 @@ target 'AwesomeProject' do
   pod 'react-native-geolocation', :path => '../node_modules/@react-native-community/geolocation'
 
   pod 'react-native-image-picker', :path => '../node_modules/react-native-image-picker'
+
+  pod 'RNFastImage', :path => '../node_modules/react-native-fast-image'
+
+  pod 'react-native-date-picker', :path => '../node_modules/react-native-date-picker'
 
   target 'AwesomeProjectTests' do
     inherit! :search_paths

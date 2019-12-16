@@ -1,16 +1,20 @@
  import  React, { Component} from 'react';
- import {View} from 'react-native';
+ import {View, Dimensions} from 'react-native';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
- export default class Search extends Component {
+const WIDTH = Dimensions.get('window').width
+const HEIGHT = Dimensions.get('window').height
+ 
+export default class Search extends Component {
      state={
          searchFocus: false,
+         bottom: 0
      }
      render(){
          const {searchFocused} = this.state;
          const {onLocationSelected} = this.props;
         return (
             <GooglePlacesAutocomplete 
-            placeholder="¿En que direccion?"
+            placeholder="Buscar"
             placeholderTextColor='#333'
             onPress={onLocationSelected}
             query={{
@@ -34,12 +38,12 @@ import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
             styles = {{ 
                 container: {
                     position: 'absolute',
-                    bottom: 30,
+                    top:HEIGHT / 8,
                     width: '100%',
                 },
                 textInputContainer: {
                     flex: 1,
-                    backgroundColor: "transparent",
+                    backgroundColor: "transaprent",
                     height: 54,
                     marginHorizontal: 20,
                     borderTopWidth: 0,
@@ -48,6 +52,7 @@ import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
                  textInput: {
                      height: 54,
                      margin: 0,
+                     color:'#000',
                      borderRadius: 25,
                      paddingTop: 0,
                      paddingBottom: 0,

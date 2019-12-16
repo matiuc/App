@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+import com.henninghall.date_picker.DatePickerPackage;
+import com.dylanvann.fastimage.FastImageViewPackage;
 import com.imagepicker.ImagePickerPackage;
 import com.reactnativecommunity.geolocation.GeolocationPackage;
 import com.facebook.react.ReactNativeHost;
