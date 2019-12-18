@@ -47,7 +47,7 @@ export default class Perfil extends Component {
         this.props.navigation.navigate("Mapa")
     }
     handleChooseImage = () => {
-        ImagePicker.showImagePicker({ noData: true, mediaType: "photo" }, (response) => {
+        ImagePicker.showImagePicker({ noData: true, mediaType: "photo", allowsEditing: true }, (response) => {
 
             if (response.didCancel) {
                 console.log('User cancelled image picker');
@@ -61,8 +61,8 @@ export default class Perfil extends Component {
                 })
                 this.uriToBlob(response.uri).then(async (resolve) => {
                     userId = firebase.auth().currentUser.uid
-                    const esperar = await firebase.storage().ref(userId).child("/profileImage").put(resolve)
-                    firebase.storage().ref(userId).child("/profileImage").getDownloadURL().then(url =>
+                    const esperar = await firebase.storage().ref("Users").child(userId + "/profileImage").put(resolve)
+                    firebase.storage().ref("Users").child(userId + "/profileImage").getDownloadURL().then(url =>
                         firebase.database().ref().child('users/' + userId).set({
                             username: this.state.name,
                             email: this.state.mail,

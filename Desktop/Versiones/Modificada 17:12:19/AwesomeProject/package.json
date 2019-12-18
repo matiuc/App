@@ -34,6 +34,7 @@
     "react-native-image-picker": "^1.1.0",
     "react-native-maps": "0.26.1",
     "react-native-maps-directions": "^1.7.3",
+    "react-native-options-menu": "^2.0.2",
     "react-native-reanimated": "^1.4.0",
     "react-native-webview": "^7.5.1",
     "react-navigation": "^4.0.10",

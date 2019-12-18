@@ -70,7 +70,7 @@ export default class Create extends React.Component {
     }
 
     handleChooseImage = () => {
-        ImagePicker.showImagePicker({ noData: true, mediaType: "photo" }, (response) => {
+        ImagePicker.showImagePicker({ noData: true, mediaType: "photo", allowsEditing: true }, (response) => {
 
             if (response.didCancel) {
                 console.log('User cancelled image picker');
@@ -91,8 +91,9 @@ export default class Create extends React.Component {
         // Alert.alert(this.state.latitude)
         this.uriToBlob(this.state.avatarSource.uri).then(async (resolve) => {
             pinId = nextId();
-            const esperar = await firebase.storage().ref(pinId).child("/Image").put(resolve)
-            firebase.storage().ref(pinId).child("/Image").getDownloadURL().then(url =>
+            const userId = firebase.auth().currentUser.uid;
+            const esperar = await firebase.storage().ref("Pins").child(pinId + "/Image").put(resolve)
+            firebase.storage().ref("Pins").child(pinId + "/Image").getDownloadURL().then(url =>
                 firebase.database().ref('Pins/' + pinId).set({
                     latitude: latitude,
                     longitud: longitud,
@@ -101,6 +102,7 @@ export default class Create extends React.Component {
                     categoria: "Recreacion",
                     id: pinId,
                     photoUrl: url,
+                    userId: userId,
                     
         
                 }).catch((error) => {
@@ -111,7 +113,7 @@ export default class Create extends React.Component {
         })     
 
         
-        this.props.navigation.navigate("App")
+        this.props.navigation.navigate("Mapa")
     }
     handleBack = () => {
         this.props.navigation.navigate("PinInfo")
