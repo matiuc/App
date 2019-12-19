@@ -2,7 +2,7 @@ import {createAppContainer, createSwitchNavigator} from 'react-navigation'
 import {createDrawerNavigator, DrawerItems, DrawerActions} from 'react-navigation-drawer';
 
 import React, {Component} from 'react';
-import Map from './components/Map';
+import Map from './components/Map/index';
 import Register from './components/Loggin-Register/Register'
 import Login from './components/Loggin-Register/Login'
 import Loading from './components/Loading/index'
@@ -13,6 +13,8 @@ import ChangeEmail  from './components/Perfil/ChangeEmail'
 import ChangePass  from './components/Perfil/ChangePass'
 import ResetPass from './components/Loggin-Register/ResetPass'
 import Create from './components/PinInfo/Categorias/Crear'
+import Buscar from './components/Buscar/index'
+import Pin from './components/Map/pin'
 
 import * as firebase from "firebase";
 
@@ -50,6 +52,8 @@ const AppSwitch = createSwitchNavigator(
         ChangePass: ChangePass,
         ResetPass: ResetPass,
         Create: Create,
+        Buscar: Buscar,
+        Pin: Pin
 
     },
     {

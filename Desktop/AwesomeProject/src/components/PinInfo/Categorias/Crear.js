@@ -1,4 +1,6 @@
 import React from 'react';
+import ImagePicker from 'react-native-image-picker';
+
 import {
     StyleSheet,
     View,
@@ -11,10 +13,11 @@ import {
     TextInput, ActivityIndicator, ScrollView
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+
 import DatePicker from 'react-native-date-picker';
 
-import Map from '../../Map'
 import * as firebase from "firebase";
+import 'firebase/firestore'
 import nextId from "react-id-generator";
 import FastImage from "react-native-fast-image"
 
@@ -31,33 +34,105 @@ export default class Create extends React.Component {
         errorMessage: null,
         mail: '',
         date: new Date(),
-        mode: 'date',
+
         show: false,
+        avatarSource: "",
 
     };
 
     onChangeDes = description => this.setState({ description });
     onChangeTitle = title => this.setState({ title });
 
-    crear = (latitude, longitud, nombre, descripcion) => {
-        // Alert.alert(this.state.latitude);
-        pinId = nextId();
-        firebase.database().ref('Pins/' + pinId).set({
-            latitude: latitude,
-            longitud: longitud,
-            nombre: nombre,
-            descripcion: descripcion,
-            categoria: "Recreacion"
+    uriToBlob = (uri) => {
+
+        return new Promise((resolve, reject) => {
+
+            const xhr = new XMLHttpRequest();
+
+            xhr.onload = function () {
+                // return the blob
+                resolve(xhr.response);
+            };
+
+            xhr.onerror = function () {
+                // something went wrong
+                reject(new Error('uriToBlob failed'));
+            };
+
+            // this helps us get a blob
+            xhr.responseType = 'blob';
+
+            xhr.open('GET', uri, true);
+            xhr.send(null);
 
         });
-        this.props.navigation.navigate("App")
+
+    }
+
+    handleChooseImage = () => {
+        ImagePicker.showImagePicker({ noData: true, mediaType: "photo", allowsEditing: true }, (response) => {
+
+            if (response.didCancel) {
+                console.log('User cancelled image picker');
+            } else if (response.error) {
+                console.log('ImagePicker Error: ', response.error);
+            } else if (response.customButton) {
+                console.log('User tapped custom button: ', response.customButton);
+            } else {
+                this.setState({
+                    avatarSource: { uri: response.uri, priority: FastImage.priority.high,}
+                })
+            }
+        });
+    };
+
+
+    crear = (latitude, longitud, nombre, descripcion) => {
+        // Alert.alert(this.state.latitude)
+        this.uriToBlob(this.state.avatarSource.uri).then(async (resolve) => {
+            pinId = nextId();
+            const userId = firebase.auth().currentUser.uid;
+            const esperar = await firebase.storage().ref("Pins").child(pinId + "/Image").put(resolve)
+            firebase.storage().ref("Pins").child(pinId + "/Image").getDownloadURL().then(url =>
+                firebase.database().ref('Pins/' + pinId).set({
+                    latitude: latitude,
+                    longitud: longitud,
+                    nombre: nombre,
+                    descripcion: descripcion,
+                    categoria: "Recreacion",
+                    id: pinId,
+                    photoUrl: url,
+                    userId: userId,
+                    
+        
+                }).catch((error) => {
+                    console.log(error.message)
+                })
+
+            )
+        })     
+
+        
+        this.props.navigation.navigate("Mapa")
     }
     handleBack = () => {
         this.props.navigation.navigate("PinInfo")
     }
 
+    async componentDidMount() {
+        firebase.storage().ref('Default').child('default-image.jpg').getDownloadURL().then(url => {
+            this.setState({
+                avatarSource: { uri: url , priority: FastImage.priority.high,},
+
+
+            });
+        })
+
+        
+    }
+
     render() {
-        const categoria = this.props.navigation.getParam('categoria')
+        const categoria = this.props.navigation.getParam('categoria');
         const latitude = this.props.navigation.getParam('latitude');
         const longitud = this.props.navigation.getParam('longitud');
         return (
@@ -70,11 +145,11 @@ export default class Create extends React.Component {
                     <TouchableOpacity style={styles.image} onPress={this.handleChooseImage}>
                         <FastImage
                             style={{ width: WIDTH, height: HEIGHT / 3.5, }}
-                            source={require('AwesomeProject/assets/p.png')}
+                            source={this.state.avatarSource}
                             onLoadStart={() => { this.setState({ loading: true }) }}
                             onLoadEnd={() => { this.setState({ loading: false }) }}
                         >
-                            <ActivityIndicator style={{ top: 0 }} size="large" animating={this.state.loading} />
+                            <ActivityIndicator style={{ top: HEIGHT/10 }} size="large" animating={this.state.loading} />
                         </FastImage>
                     </TouchableOpacity>
                 </View>
@@ -88,7 +163,6 @@ export default class Create extends React.Component {
                         autoCapitalize="words"
                         onChangeText={this.onChangeTitle}
                         value={this.state.title}
-                        maxLength={30}
                     ></TextInput>
 
 
@@ -97,15 +171,15 @@ export default class Create extends React.Component {
                         style={{ top: HEIGHT / 30, height: HEIGHT / 5, borderColor: 'gray', borderWidth: 1 }}
                         autoCapitalize="sentences"
                         multiline={true}
-                        maxLength={100}
                         onChangeText={this.onChangeDes}
                         value={this.state.description}
                     />
                     <DatePicker
                         style={styles.spin}
                         date={this.state.date}
-                        onDateChange={date => this.setState({ date })}
-
+                        value = {this.state.date}
+                        onDateChange={(date) => {
+                         this.setState({ date: date })}}
                     />
 
 

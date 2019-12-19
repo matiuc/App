@@ -23,7 +23,6 @@ export default class PinInfo extends Component {
 }
 
   crear_evento = (categoria, latitude, longitud) => {
-    console.log(latitude);
     this.props.navigation.navigate("Create", {latitude: latitude, 
       longitud: longitud, categoria: categoria });
   }

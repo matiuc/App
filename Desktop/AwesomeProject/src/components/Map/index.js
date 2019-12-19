@@ -42,7 +42,6 @@ export default class Map extends Component {
     );
     firebase.database().ref("Pins").on("value", (data)=> {
       var json = data.toJSON()
-      console.log(json)
       for (key in json) {
         this.setState({
           markers: [
@@ -51,7 +50,8 @@ export default class Map extends Component {
               coordinate: {
                 latitude: json[key]["latitude"],
                 longitude: json[key]["longitud"]
-              }
+              },
+              id: json[key]["id"]
 
             }
           ]
@@ -115,16 +115,11 @@ export default class Map extends Component {
   // Action to be taken after select location button click
   onLocationSelect = () => {
     alert(this.state.userLocation)
-    console.log(this.state.region)
   };
   handlePress = () => {
-    this.props.navigation.navigate("PinInfo")
-    // pinId = nextId();
-
-    // firebase.database().ref('Pins/' + pinId).set({
-    //     latitude: this.state.region.latitude,
-    //     longitud: this.state.region.longitude,
-    //   });
+    this.props.navigation.navigate("PinInfo", 
+    { latitude: this.state.region.latitude, 
+    longitud: this.state.region.longitude });
   }
   render() {
     const { region } = this.state;
@@ -138,6 +133,13 @@ export default class Map extends Component {
       </TouchableOpacity>
       <TouchableOpacity style={styles.button2} onPress={this.handlePress}>
         <Image source={require('AwesomeProject/assets/add.png')}
+
+          style={{ width: 60, height: 60 }} />
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button5} onPress={() => 
+      this.props.navigation.navigate("Buscar")}>
+        <Image source={require('AwesomeProject/assets/search.png')}
 
           style={{ width: 60, height: 60 }} />
       </TouchableOpacity>
@@ -161,7 +163,7 @@ export default class Map extends Component {
           return (
             <Marker identifier = {marker.identifier}
             coordinate = {marker.coordinate}
-            onPress = {()=>{this.props.navigation.navigate("PinInfo")}}>
+            onPress = {()=>{this.props.navigation.navigate("Pin", {id: marker.id})}}>
               <View style={styles.marker}>
               </View>
             </Marker>
@@ -233,6 +235,24 @@ const styles = StyleSheet.create({
     left: WIDTH / 20,
     borderRadius: 50,
     backgroundColor: 'white',
+    alignItems: 'center',
+    shadowColor: 'black',
+    justifyContent: 'center'
+
+
+  },
+
+  button5: {
+    zIndex: 9,
+    position: 'absolute',
+    flexDirection: 'row-reverse',
+    width: 45,
+    height: 45,
+    top: HEIGHT / 25,
+    right: WIDTH / 20,
+    borderRadius: 50,
+    backgroundColor: 'white',
+    alignSelf: 'flex-end',
     alignItems: 'center',
     shadowColor: 'black',
     justifyContent: 'center'
