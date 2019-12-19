@@ -177,7 +177,7 @@ export default class Map extends Component {
             "#ad1f1f"
         }}>&#xf041;</Text>
       </View>
-      <Search onLocationSelected={this.handleLocationSelected} />
+      <Search onLocationSelected={this.handleLocationSelected}/>
     </View>);
   }
 }

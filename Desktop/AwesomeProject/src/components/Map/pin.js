@@ -30,20 +30,67 @@ export default class Pin extends React.Component {
         categoria: '',
         errorMessage: null,
         url: "",
-        idCreator:"",
+        idCreator: "",
         candelete: null,
-        idPin: ""
+        idPin: "",
+        likes: [],
+        like: null,
+        notlike: true,
+        userId: "",
+        keyPass: null,
+        comment: null,
 
     };
     comprobation_delete = (id) => {
-        if (id==this.state.idCreator) {
+        if (id == this.state.idCreator) {
             this.setState({
                 candelete: true
             })
         }
     }
+    dictToarray = (dict) => {
+        for (key in dict) {
+            this.setState({
+                likes: [
+                    ...this.state.likes,
+                    dict[key]
+                ]
+            });
+        }
+    }
+    comprobation_like = (id) => {
+        if (this.state.likes.length == 0) {
+            this.setState({
+                like: null,
+                notlike: true
+            })
+        }
+        else {
+            this.state.likes.map((element) => {
+                if (element == id) {
+                    this.setState({
+                        keyPass: true
+                    })
+                    return
+                }
+
+            })
+            if (this.state.keyPass) {
+                this.setState({
+                    like: true,
+                    notlike: null
+                })
+            } else {
+                this.setState({
+                    like: null,
+                    notlike: true
+                })
+            }
+        }
+
+    }
     deletePost = async () => {
-        if (this.state.candelete){
+        if (this.state.candelete) {
             const esperar = await firebase.database().ref('Pins/' + this.state.idPin).remove()
             const esperar2 = await firebase.storage().ref("Pins").child(this.state.idPin + "/Image").delete()
             this.props.navigation.navigate("Mapa")
@@ -59,6 +106,39 @@ export default class Pin extends React.Component {
     handleBack = () => {
         this.props.navigation.navigate("Mapa")
     }
+    handleSend = () => {
+    }
+
+    handleImage = () => {
+
+    }
+
+    hanldeLike = async () => {
+        if (this.state.notlike) {
+            firebase.database().ref('Pins/' + this.state.idPin).update({
+                likes: [
+                    ...this.state.likes,
+                    this.state.userId
+                ],
+            })
+        }
+        else {
+            var index = await this.state.likes.indexOf(this.state.userId)
+            if (index >= 0) {
+                this.setState({
+                    keyPass: null
+                })
+                this.state.likes.splice(index, 1)
+                firebase.database().ref('Pins/' + this.state.idPin).update({
+                    likes: this.state.likes,
+                })
+            }
+
+        }
+
+
+
+    }
 
     async componentDidMount() {
         const userId = firebase.auth().currentUser.uid;
@@ -71,6 +151,7 @@ export default class Pin extends React.Component {
             categoria = json["categoria"]
             idcreator = json["userId"]
 
+
             await this.setState({
                 url: { uri: url, priority: FastImage.priority.high, },
                 title: title,
@@ -78,20 +159,30 @@ export default class Pin extends React.Component {
                 categoria: categoria,
                 idCreator: idcreator,
                 idPin: id,
+                userId: userId
 
             });
-            this.comprobation_delete(userId)
-
+            this.comprobation_delete(userId);
 
         }
         )
+
+        firebase.database().ref("Pins").child(id).on("value", async (data) => {
+            json = data.toJSON()
+            likes = json["likes"]
+            await this.setState({
+                likes: []
+            });
+            likestoArray = await this.dictToarray(likes)
+            this.comprobation_like(userId);
+        })
     }
 
     render() {
 
         return (
             <View style={styles.Pagina}>
-                
+
                 <View style={styles.titulo_space}>
 
                     <TouchableOpacity style={styles.image} onPress={this.handleChooseImage}>
@@ -104,29 +195,58 @@ export default class Pin extends React.Component {
                             <ActivityIndicator style={{ top: HEIGHT / 10 }} size="large" animating={this.state.loading} />
                         </FastImage>
                     </TouchableOpacity>
-                    
+
                 </View>
 
 
                 <ScrollView style={styles.MainContainer}>
-                    <View style = {{backgroundColor: "white", flexDirection:"row", justifyContent: "center"}}>
-                    <Text style={styles.inputTitle}>{this.state.title}</Text>
-                    <Icon name="checkmark-circle" size = {30} color={"blue"} style={{ top: HEIGHT/150, left: WIDTH/50}} />
-                    
+                    <View style={{ backgroundColor: "white", flexDirection: "row", justifyContent: "center" }}>
+                        <Text style={styles.inputTitle}>{this.state.title}</Text>
+                        <Icon name="checkmark-circle" size={30} color={"turquoise"} style={{ top: HEIGHT / 150, left: WIDTH / 50 }} />
+
                     </View>
                     <View>
-                    <Text style={styles.inputTitle2}>{this.state.description}</Text>
-                    <Icon name="heart" size = {40} color={"red"} style={{top: HEIGHT/20}} />
+                        <Text style={styles.inputTitle2}>{this.state.description}</Text>
                     </View>
-  
+                    <View style={{ flexDirection: "row" , borderTopColor: "black", borderBottomWidth:1, top: HEIGHT/20}}>
+                        <TouchableOpacity onPress={this.hanldeLike}>
+                            {this.state.like && <Icon name="heart" size={40} color={"red"} style={{ top: 0 }} />}
+                            {this.state.notlike && <Icon name="heart-empty" size={40} color={"red"} style={{ top: HEIGHT / 20 }} />}
+
+                        </TouchableOpacity>
+                        <Text style={{ fontSize: 35, top: 0, left: 10 }}>{this.state.likes.length}</Text>
+                    </View>
+
 
 
                 </ScrollView>
-                <View style={{backgroundColor: "black", height: HEIGHT/13,}}>
+                <View style={{
+                    backgroundColor: "black", height: HEIGHT / 13, flexDirection: 'column',
+                    justifyContent: 'center', alignItems: 'center'
+                }}>
+                    <View style={{
+                        width: WIDTH / 1.4, height: HEIGHT / 20, backgroundColor: "white", borderRadius: 50, flexDirection: 'row',
+                        justifyContent: 'center', alignItems: 'center'
+                    }}>
+                        <TouchableOpacity onPress={this.handleImage}>
+                            <Icon name="images" size={40} color={"turquoise"} style={{ right: WIDTH / 12 }} />
+
+                        </TouchableOpacity>
+                        <TextInput style={{ width: WIDTH / 1.6, height: HEIGHT / 21, backgroundColor: "white", borderRadius: 50, fontSize: 18, color: "#161F3D" }}
+                            placeholder={"Escribe tu comentario..."}
+                        />
+
+                        <TouchableOpacity onPress={this.handleSend}>
+                            <Icon name="send" size={40} color={"turquoise"} style={{ left: WIDTH / 15 }} />
+
+                        </TouchableOpacity>
+                    </View>
+
+
 
                 </View>
 
-                
+
 
 
                 <TouchableOpacity style={styles.back} onPress={this.handleBack}>
@@ -135,14 +255,14 @@ export default class Pin extends React.Component {
                         style={{ width: 50, height: 50 }} />
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.tools} onPress={this.handleBack}>
-                <OptionsMenu
-                    button={require('AwesomeProject/assets/tools.png')}
-                    buttonStyle={{ width: 50, height: 50,}}
-                    destructiveIndex={0}
-                    options={[ "Delete", "Cancel"]}
-                    actions={[this.deletePost, this.cancel]} />
-                </TouchableOpacity> 
-            
+                    <OptionsMenu
+                        button={require('AwesomeProject/assets/tools.png')}
+                        buttonStyle={{ width: 50, height: 50, }}
+                        destructiveIndex={0}
+                        options={["Delete", "Cancel"]}
+                        actions={[this.deletePost, this.cancel]} />
+                </TouchableOpacity>
+
             </View>
         );
 
@@ -153,7 +273,7 @@ const styles = StyleSheet.create({
     MainContainer: {
         top: HEIGHT / 20,
         backgroundColor: "white",
-        marginHorizontal: WIDTH/100,
+        marginHorizontal: WIDTH / 100,
     },
 
     Pagina: {

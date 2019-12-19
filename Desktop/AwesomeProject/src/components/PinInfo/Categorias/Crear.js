@@ -103,8 +103,7 @@ export default class Create extends React.Component {
                     id: pinId,
                     photoUrl: url,
                     userId: userId,
-                    
-        
+                    likes: [],
                 }).catch((error) => {
                     console.log(error.message)
                 })
