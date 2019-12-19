@@ -114,7 +114,7 @@ export default class Pin extends React.Component {
                     <Text style={styles.inputTitle2}>{this.state.description}</Text>
                     
                     </View>
-                    <Ionicons name = "ios-heart-empty" size= {40} color = "#73788B" style = {{top: 0}}/>
+                    <Ionicons name = "ios-heart-empty" size= {40} color = "red" style = {{top: 0}}/>
 
 
 
