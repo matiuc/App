@@ -1,5 +1,4 @@
 import React from 'react';
-import { Ionicons } from '@expo/vector-icons';
 import {
     StyleSheet,
     View,
@@ -11,6 +10,7 @@ import {
     Button,
     TextInput, ActivityIndicator, ScrollView, StatusBar
 } from 'react-native';
+import Icon from 'react-native-ionicons';
 
 import OptionsMenu from "react-native-options-menu";
 
@@ -109,13 +109,16 @@ export default class Pin extends React.Component {
 
 
                 <ScrollView style={styles.MainContainer}>
-                    <View style = {{backgroundColor: "white"}}>
+                    <View style = {{backgroundColor: "white", flexDirection:"row", justifyContent: "center"}}>
                     <Text style={styles.inputTitle}>{this.state.title}</Text>
-                    <Text style={styles.inputTitle2}>{this.state.description}</Text>
+                    <Icon name="checkmark-circle" size = {30} color={"blue"} style={{ top: HEIGHT/150, left: WIDTH/50}} />
                     
                     </View>
-                    <Ionicons name = "ios-heart-empty" size= {40} color = "#73788B" style = {{top: 0}}/>
-
+                    <View>
+                    <Text style={styles.inputTitle2}>{this.state.description}</Text>
+                    <Icon name="heart" size = {40} color={"red"} style={{top: HEIGHT/20}} />
+                    </View>
+  
 
 
                 </ScrollView>
