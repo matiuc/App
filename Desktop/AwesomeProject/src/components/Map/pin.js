@@ -8,9 +8,10 @@ import {
     TouchableOpacity,
     Alert,
     Button,
-    TextInput, ActivityIndicator, ScrollView, StatusBar
+    TextInput, ActivityIndicator, ScrollView, StatusBar, FlatList
 } from 'react-native';
 import Icon from 'react-native-ionicons';
+import nextId from "react-id-generator";
 
 import OptionsMenu from "react-native-options-menu";
 
@@ -38,7 +39,10 @@ export default class Pin extends React.Component {
         notlike: true,
         userId: "",
         keyPass: null,
-        comment: null,
+        comments: [],
+        message: null,
+        avatarSource: null,
+        nameUser: null
 
     };
     comprobation_delete = (id) => {
@@ -58,6 +62,19 @@ export default class Pin extends React.Component {
             });
         }
     }
+
+    dictToarray2 = (dict) => {
+        for (key in dict) {
+            this.setState({
+                comments: [
+                    ...this.state.comments,
+                    dict[key]
+                ]
+            });
+        }
+        console.log(this.state.comments, "asdsada")
+    }
+
     comprobation_like = (id) => {
         if (this.state.likes.length == 0) {
             this.setState({
@@ -106,7 +123,38 @@ export default class Pin extends React.Component {
     handleBack = () => {
         this.props.navigation.navigate("Mapa")
     }
-    handleSend = () => {
+    handleSend = async () => {
+        if (this.state.message) {
+            await firebase.database().ref("users").child(this.state.userId).once("value", async (data) => {
+                json = data.toJSON()
+                url = json["profileImage"]
+                name = json["username"]
+
+                this.setState({
+                    avatarSource: url,
+                    nameUser: name,
+
+                });
+
+
+            })
+            id = nextId()
+            firebase.database().ref('Pins/' + this.state.idPin).update({
+                comments: [
+                    ...this.state.comments,
+                    {
+                        id: id,
+                        UserId: this.state.userId,
+                        text: this.state.message,
+                        name: this.state.nameUser,
+                        profileImage: this.state.avatarSource
+
+                    }
+                ],
+            })
+            this.textInput.clear()
+
+        }
     }
 
     handleImage = () => {
@@ -170,13 +218,38 @@ export default class Pin extends React.Component {
         firebase.database().ref("Pins").child(id).on("value", async (data) => {
             json = data.toJSON()
             likes = json["likes"]
+            comments = json["comments"]
             await this.setState({
-                likes: []
+                likes: [],
+                comments: []
             });
             likestoArray = await this.dictToarray(likes)
+            likestoArray2 = await this.dictToarray2(comments)
             this.comprobation_like(userId);
         })
     }
+
+    renderPost = (post) => {
+        return (
+            <View style={styles.feedItem}>
+                <FastImage
+                    style={styles.avatar}
+                    source={{uri: post.profileImage}}
+                />
+                <View style={{flex:1}}>
+                    <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+                        <View>
+                            <Text style = {styles.name}>{post.name}</Text>
+                        </View>
+
+                    </View>
+                <Text style={styles.post}>{post.text}</Text>
+                </View>
+            </View>
+        )
+    }
+
+    onChangeMessage = message => this.setState({ message });
 
     render() {
 
@@ -208,14 +281,20 @@ export default class Pin extends React.Component {
                     <View>
                         <Text style={styles.inputTitle2}>{this.state.description}</Text>
                     </View>
-                    <View style={{ flexDirection: "row" , borderTopColor: "black", borderBottomWidth:1, top: HEIGHT/20}}>
+                    <View style={{ flexDirection: "row", borderTopColor: "black", borderBottomWidth: 1, top: HEIGHT / 20 }}>
                         <TouchableOpacity onPress={this.hanldeLike}>
                             {this.state.like && <Icon name="heart" size={40} color={"red"} style={{ top: 0 }} />}
-                            {this.state.notlike && <Icon name="heart-empty" size={40} color={"red"} style={{ top: HEIGHT / 20 }} />}
+                            {this.state.notlike && <Icon name="heart-empty" size={40} color={"red"} style={{ top: 0 }} />}
 
                         </TouchableOpacity>
                         <Text style={{ fontSize: 35, top: 0, left: 10 }}>{this.state.likes.length}</Text>
                     </View>
+                    <FlatList style={styles.feed} data={this.state.comments}
+                        renderItem={({ item }) => this.renderPost(item)}
+                        keyExtractor={item => item.id}
+                        showsVerticalScrollIndicator={false}>
+
+                    </FlatList>
 
 
 
@@ -234,6 +313,9 @@ export default class Pin extends React.Component {
                         </TouchableOpacity>
                         <TextInput style={{ width: WIDTH / 1.6, height: HEIGHT / 21, backgroundColor: "white", borderRadius: 50, fontSize: 18, color: "#161F3D" }}
                             placeholder={"Escribe tu comentario..."}
+                            onChangeText={this.onChangeMessage}
+                            value={this.state.message}
+                            ref={input => { this.textInput = input }}
                         />
 
                         <TouchableOpacity onPress={this.handleSend}>
@@ -358,5 +440,33 @@ const styles = StyleSheet.create({
         width: WIDTH,
         height: 200,
 
+    },
+    feed: {
+        top: HEIGHT / 20,
+        marginBottom: HEIGHT / 10,
+    },
+    feedItem:{
+        backgroundColor : "turquoise",
+        borderRadius: 5,
+        padding: 8,
+        flexDirection: "row",
+        marginVertical: 8,
+    },
+    avatar: {
+        width:36,
+        height: 36,
+        borderRadius:18,
+        marginRight:WIDTH/30
+
+    },
+    name: {
+        fontSize: 15,
+        fontWeight: "500",
+        color: "#454D65",
+    },
+    post: {
+        marginTop: HEIGHT/40,
+        fontSize: 14,
+        color: "#838899"
     }
 });

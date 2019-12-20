@@ -104,6 +104,7 @@ export default class Create extends React.Component {
                     photoUrl: url,
                     userId: userId,
                     likes: [],
+                    comments: [],
                 }).catch((error) => {
                     console.log(error.message)
                 })
