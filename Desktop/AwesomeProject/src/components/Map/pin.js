@@ -121,6 +121,7 @@ export default class Pin extends React.Component {
     }
 
     handleBack = () => {
+        firebase.database().ref("Pins").child(id + "/comments").off()
         this.props.navigation.navigate("Mapa")
     }
     handleSend = async () => {
@@ -140,19 +141,22 @@ export default class Pin extends React.Component {
             })
             id = nextId()
             firebase.database().ref('Pins/' + this.state.idPin).update({
-                comments: [
+                comments:[
                     ...this.state.comments,
-                    {
-                        id: id,
+                    {id: id,
                         UserId: this.state.userId,
                         text: this.state.message,
                         name: this.state.nameUser,
-                        profileImage: this.state.avatarSource
+                        profileImage: this.state.avatarSource} 
+                ]
+ 
+                        
 
-                    }
-                ],
             })
             this.textInput.clear()
+            this.setState({
+                message: ""
+            })
 
         }
     }
@@ -198,6 +202,8 @@ export default class Pin extends React.Component {
             description = json["descripcion"]
             categoria = json["categoria"]
             idcreator = json["userId"]
+            likes = json["likes"]
+            comments = json["comments"]
 
 
             await this.setState({
@@ -207,24 +213,31 @@ export default class Pin extends React.Component {
                 categoria: categoria,
                 idCreator: idcreator,
                 idPin: id,
-                userId: userId
+                userId: userId,
+                likes: [],
+                comments: []
 
             });
             this.comprobation_delete(userId);
+            likestoArray = await this.dictToarray(likes)
+            likestoArray2 = await this.dictToarray2(comments)
+            this.comprobation_like(userId);
 
         }
         )
 
-        firebase.database().ref("Pins").child(id).on("value", async (data) => {
+        firebase.database().ref("Pins").child(id + "/comments").on("child_added", async (data) => {
             json = data.toJSON()
-            likes = json["likes"]
-            comments = json["comments"]
-            await this.setState({
-                likes: [],
-                comments: []
+            this.setState({
+                comments: [
+                    ...this.state.comments,
+                    json
+                ]
             });
-            likestoArray = await this.dictToarray(likes)
-            likestoArray2 = await this.dictToarray2(comments)
+        })
+        firebase.database().ref("Pins").child(id + "/likes").on("value", async (data) => {
+            json = data.toJSON()
+            likestoArray = await this.dictToarray(json)
             this.comprobation_like(userId);
         })
     }
@@ -255,7 +268,7 @@ export default class Pin extends React.Component {
 
         return (
             <View style={styles.Pagina}>
-
+                <StatusBar barStyle="dark-content" />
                 <View style={styles.titulo_space}>
 
                     <TouchableOpacity style={styles.image} onPress={this.handleChooseImage}>
