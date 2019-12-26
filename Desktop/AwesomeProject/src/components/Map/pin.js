@@ -11,7 +11,7 @@ import {
     TextInput, ActivityIndicator, ScrollView, StatusBar, FlatList
 } from 'react-native';
 import Icon from 'react-native-ionicons';
-import nextId, { setPrefix }  from "react-id-generator";
+import nextId, { setPrefix } from "react-id-generator";
 
 import OptionsMenu from "react-native-options-menu";
 
@@ -140,17 +140,16 @@ export default class Pin extends React.Component {
 
 
             })
-            setPrefix("");
             id = uuid.v1();
- 
+
             firebase.database().ref('Pins/' + this.state.idPin).child("comments/" + id).set({
-                    id: id,
-                        UserId: this.state.userId,
-                        text: this.state.message,
-                        name: this.state.nameUser,
-                        profileImage: this.state.avatarSource
- 
-                        
+                id: id,
+                UserId: this.state.userId,
+                text: this.state.message,
+                name: this.state.nameUser,
+                profileImage: this.state.avatarSource
+
+
 
             })
             this.textInput.clear()
@@ -165,14 +164,14 @@ export default class Pin extends React.Component {
 
     }
 
-    deleteComment = async(id, userid) => {
-        if (userid ==this.state.userId) {
+    deleteComment = async (id, userid) => {
+        if (userid == this.state.userId) {
             await delete this.state.commentsDict[id]
             firebase.database().ref('Pins/' + this.state.idPin).update({
                 comments: this.state.commentsDict
             })
             Alert.alert("Eliminado Con Éxito")
-        }else{
+        } else {
             Alert.alert("Solo el creador del comentario puede eliminarlo.")
         }
     }
@@ -245,7 +244,7 @@ export default class Pin extends React.Component {
 
             });
             likestoArray2 = await this.dictToarray2(json)
-            
+
         })
         firebase.database().ref("Pins").child(id + "/likes").on("value", async (data) => {
             json = data.toJSON()
@@ -258,33 +257,33 @@ export default class Pin extends React.Component {
     }
 
     renderPost = (post) => {
-        
+
         return (
             <View style={styles.feedItem}>
                 <FastImage
                     style={styles.avatar}
-                    source={{uri: post.profileImage}}
+                    source={{ uri: post.profileImage }}
                 />
-                <View style={{flex:1}}>
-                    <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+                <View style={{ flex: 1 }}>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
                         <View>
-        <Text style = {styles.name}>{post.name}</Text>
+                            <Text style={styles.name}>{post.name}</Text>
                         </View>
 
                     </View>
-                <Text style={styles.post}>{post.text}</Text>
+                    <Text style={styles.post}>{post.text}</Text>
                 </View>
                 <TouchableOpacity >
                     <OptionsMenu
-                    
+
                         button={require('AwesomeProject/assets/tools.png')}
                         buttonStyle={{ width: 20, height: 20, }}
                         destructiveIndex={0}
                         options={["Delete", "Cancel"]}
                         actions={[() => this.deleteComment(post.id, post.UserId), this.cancel]} />
-                        
+
                 </TouchableOpacity>
-            
+
             </View>
         )
     }
@@ -312,7 +311,11 @@ export default class Pin extends React.Component {
                 </View>
 
 
-                <ScrollView style={styles.MainContainer}>
+                <ScrollView style={styles.MainContainer}
+                    ref={ref => this.scrollView = ref}
+                    onContentSizeChange={(contentWidth, contentHeight) => {
+                        this.scrollView.scrollToEnd({ animated: true });
+                    }}>
                     <View style={{ backgroundColor: "white", flexDirection: "row", justifyContent: "center" }}>
                         <Text style={styles.inputTitle}>{this.state.title}</Text>
                         <Icon name="checkmark-circle" size={30} color={"turquoise"} style={{ top: HEIGHT / 150, left: WIDTH / 50 }} />
@@ -485,18 +488,18 @@ const styles = StyleSheet.create({
         top: HEIGHT / 20,
         marginBottom: HEIGHT / 10,
     },
-    feedItem:{
-        backgroundColor : "turquoise",
+    feedItem: {
+        backgroundColor: "turquoise",
         borderRadius: 5,
         padding: 8,
         flexDirection: "row",
         marginVertical: 8,
     },
     avatar: {
-        width:36,
+        width: 36,
         height: 36,
-        borderRadius:18,
-        marginRight:WIDTH/30
+        borderRadius: 18,
+        marginRight: WIDTH / 30
 
     },
     name: {
@@ -505,7 +508,7 @@ const styles = StyleSheet.create({
         color: "#454D65",
     },
     post: {
-        marginTop: HEIGHT/40,
+        marginTop: HEIGHT / 40,
         fontSize: 14,
         color: "#838899"
     }

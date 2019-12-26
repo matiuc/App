@@ -24,6 +24,7 @@ import FastImage from "react-native-fast-image"
 
 const WIDTH = Dimensions.get('window').width
 const HEIGHT = Dimensions.get('window').height
+var uuid = require('react-native-uuid');
 
 
 export default class Create extends React.Component {
@@ -90,8 +91,7 @@ export default class Create extends React.Component {
     crear = (latitude, longitud, nombre, descripcion) => {
         // Alert.alert(this.state.latitude)
         this.uriToBlob(this.state.avatarSource.uri).then(async (resolve) => {
-            setPrefix("Pin");
-            pinId = nextId();
+            pinId = uuid.v1();
             const userId = firebase.auth().currentUser.uid;
             const esperar = await firebase.storage().ref("Pins").child(pinId + "/Image").put(resolve)
             firebase.storage().ref("Pins").child(pinId + "/Image").getDownloadURL().then(url =>
