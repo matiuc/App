@@ -18,7 +18,7 @@ import DatePicker from 'react-native-date-picker';
 
 import * as firebase from "firebase";
 import 'firebase/firestore'
-import nextId from "react-id-generator";
+import nextId , { setPrefix }  from "react-id-generator";
 import FastImage from "react-native-fast-image"
 
 
@@ -90,6 +90,7 @@ export default class Create extends React.Component {
     crear = (latitude, longitud, nombre, descripcion) => {
         // Alert.alert(this.state.latitude)
         this.uriToBlob(this.state.avatarSource.uri).then(async (resolve) => {
+            setPrefix("Pin");
             pinId = nextId();
             const userId = firebase.auth().currentUser.uid;
             const esperar = await firebase.storage().ref("Pins").child(pinId + "/Image").put(resolve)

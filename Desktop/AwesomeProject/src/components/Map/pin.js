@@ -11,7 +11,7 @@ import {
     TextInput, ActivityIndicator, ScrollView, StatusBar, FlatList
 } from 'react-native';
 import Icon from 'react-native-ionicons';
-import nextId from "react-id-generator";
+import nextId, { setPrefix }  from "react-id-generator";
 
 import OptionsMenu from "react-native-options-menu";
 
@@ -21,7 +21,7 @@ import FastImage from "react-native-fast-image"
 
 const WIDTH = Dimensions.get('window').width
 const HEIGHT = Dimensions.get('window').height
-
+var uuid = require('react-native-uuid');
 
 export default class Pin extends React.Component {
 
@@ -40,6 +40,7 @@ export default class Pin extends React.Component {
         userId: "",
         keyPass: null,
         comments: [],
+        commentsDict: null,
         message: null,
         avatarSource: null,
         nameUser: null
@@ -72,7 +73,6 @@ export default class Pin extends React.Component {
                 ]
             });
         }
-        console.log(this.state.comments, "asdsada")
     }
 
     comprobation_like = (id) => {
@@ -108,6 +108,7 @@ export default class Pin extends React.Component {
     }
     deletePost = async () => {
         if (this.state.candelete) {
+            firebase.database().ref("Pins").child(this.state.idPin + "/comments").off()
             const esperar = await firebase.database().ref('Pins/' + this.state.idPin).remove()
             const esperar2 = await firebase.storage().ref("Pins").child(this.state.idPin + "/Image").delete()
             this.props.navigation.navigate("Mapa")
@@ -121,7 +122,7 @@ export default class Pin extends React.Component {
     }
 
     handleBack = () => {
-        firebase.database().ref("Pins").child(id + "/comments").off()
+        firebase.database().ref("Pins").child(this.state.idPin + "/comments").off()
         this.props.navigation.navigate("Mapa")
     }
     handleSend = async () => {
@@ -139,16 +140,15 @@ export default class Pin extends React.Component {
 
 
             })
-            id = nextId()
-            firebase.database().ref('Pins/' + this.state.idPin).update({
-                comments:[
-                    ...this.state.comments,
-                    {id: id,
+            setPrefix("");
+            id = uuid.v1();
+ 
+            firebase.database().ref('Pins/' + this.state.idPin).child("comments/" + id).set({
+                    id: id,
                         UserId: this.state.userId,
                         text: this.state.message,
                         name: this.state.nameUser,
-                        profileImage: this.state.avatarSource} 
-                ]
+                        profileImage: this.state.avatarSource
  
                         
 
@@ -163,6 +163,18 @@ export default class Pin extends React.Component {
 
     handleImage = () => {
 
+    }
+
+    deleteComment = async(id, userid) => {
+        if (userid ==this.state.userId) {
+            await delete this.state.commentsDict[id]
+            firebase.database().ref('Pins/' + this.state.idPin).update({
+                comments: this.state.commentsDict
+            })
+            Alert.alert("Eliminado Con Éxito")
+        }else{
+            Alert.alert("Solo el creador del comentario puede eliminarlo.")
+        }
     }
 
     hanldeLike = async () => {
@@ -215,34 +227,38 @@ export default class Pin extends React.Component {
                 idPin: id,
                 userId: userId,
                 likes: [],
-                comments: []
+                comments: [],
+                commentsDict: comments,
 
             });
             this.comprobation_delete(userId);
-            likestoArray = await this.dictToarray(likes)
             likestoArray2 = await this.dictToarray2(comments)
-            this.comprobation_like(userId);
 
         }
         )
 
-        firebase.database().ref("Pins").child(id + "/comments").on("child_added", async (data) => {
+        firebase.database().ref("Pins").child(id + "/comments").on("value", async (data) => {
             json = data.toJSON()
-            this.setState({
-                comments: [
-                    ...this.state.comments,
-                    json
-                ]
+            await this.setState({
+                comments: [],
+                commentsDict: json,
+
             });
+            likestoArray2 = await this.dictToarray2(json)
+            
         })
         firebase.database().ref("Pins").child(id + "/likes").on("value", async (data) => {
             json = data.toJSON()
+            await this.setState({
+                likes: [],
+            });
             likestoArray = await this.dictToarray(json)
             this.comprobation_like(userId);
         })
     }
 
     renderPost = (post) => {
+        
         return (
             <View style={styles.feedItem}>
                 <FastImage
@@ -252,12 +268,23 @@ export default class Pin extends React.Component {
                 <View style={{flex:1}}>
                     <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
                         <View>
-                            <Text style = {styles.name}>{post.name}</Text>
+        <Text style = {styles.name}>{post.name}</Text>
                         </View>
 
                     </View>
                 <Text style={styles.post}>{post.text}</Text>
                 </View>
+                <TouchableOpacity >
+                    <OptionsMenu
+                    
+                        button={require('AwesomeProject/assets/tools.png')}
+                        buttonStyle={{ width: 20, height: 20, }}
+                        destructiveIndex={0}
+                        options={["Delete", "Cancel"]}
+                        actions={[() => this.deleteComment(post.id, post.UserId), this.cancel]} />
+                        
+                </TouchableOpacity>
+            
             </View>
         )
     }
@@ -349,7 +376,7 @@ export default class Pin extends React.Component {
 
                         style={{ width: 50, height: 50 }} />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.tools} onPress={this.handleBack}>
+                <TouchableOpacity style={styles.tools}>
                     <OptionsMenu
                         button={require('AwesomeProject/assets/tools.png')}
                         buttonStyle={{ width: 50, height: 50, }}

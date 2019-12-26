@@ -4,7 +4,6 @@ import { StyleSheet, View, TouchableOpacity, Image, Dimensions, Text, SafeAreaVi
 import MapView, { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import {createDrawerNavigator, DrawerItems, DrawerActions} from 'react-navigation-drawer';
-import nextId from "react-id-generator";
 
 import Search from '../Search';
 import * as firebase from "firebase";
