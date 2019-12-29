@@ -10,7 +10,8 @@ import {
     TouchableOpacity,
     Alert,
     Button,
-    TextInput, ActivityIndicator, ScrollView
+    TextInput, ActivityIndicator, ScrollView,
+    KeyboardAvoidingView
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
@@ -18,7 +19,7 @@ import DatePicker from 'react-native-date-picker';
 
 import * as firebase from "firebase";
 import 'firebase/firestore'
-import nextId , { setPrefix }  from "react-id-generator";
+import nextId, { setPrefix } from "react-id-generator";
 import FastImage from "react-native-fast-image"
 
 
@@ -81,7 +82,7 @@ export default class Create extends React.Component {
                 console.log('User tapped custom button: ', response.customButton);
             } else {
                 this.setState({
-                    avatarSource: { uri: response.uri, priority: FastImage.priority.high,}
+                    avatarSource: { uri: response.uri, priority: FastImage.priority.high, }
                 })
             }
         });
@@ -111,9 +112,9 @@ export default class Create extends React.Component {
                 })
 
             )
-        })     
+        })
 
-        
+
         this.props.navigation.navigate("Mapa")
     }
     handleBack = () => {
@@ -123,13 +124,13 @@ export default class Create extends React.Component {
     async componentDidMount() {
         firebase.storage().ref('Default').child('default-image.jpg').getDownloadURL().then(url => {
             this.setState({
-                avatarSource: { uri: url , priority: FastImage.priority.high,},
+                avatarSource: { uri: url, priority: FastImage.priority.high, },
 
 
             });
         })
 
-        
+
     }
 
     render() {
@@ -150,41 +151,43 @@ export default class Create extends React.Component {
                             onLoadStart={() => { this.setState({ loading: true }) }}
                             onLoadEnd={() => { this.setState({ loading: false }) }}
                         >
-                            <ActivityIndicator style={{ top: HEIGHT/10 }} size="large" animating={this.state.loading} />
+                            <ActivityIndicator style={{ top: HEIGHT / 10 }} size="large" animating={this.state.loading} />
                         </FastImage>
                     </TouchableOpacity>
                 </View>
 
-
                 <ScrollView style={styles.MainContainer}>
+                        
+                        <Text style={styles.inputTitle}>Nombre del Evento</Text>
+                        <TextInput
+                            style={{ top: HEIGHT / 100, height: 40, borderColor: 'gray', borderWidth: 1 }}
+                            autoCapitalize="words"
+                            onChangeText={this.onChangeTitle}
+                            value={this.state.title}
+                        ></TextInput>
+                        
+                        <Text style={styles.inputTitle2}>Descripción</Text>
+                        <TextInput
+                            style={{ top: HEIGHT / 30, height: HEIGHT / 5, borderColor: 'gray', borderWidth: 1 }}
+                            autoCapitalize="sentences"
+                            multiline={true}
+                            onChangeText={this.onChangeDes}
+                            value={this.state.description}
+                        />
+                        <DatePicker
+                            textColor="#333"
+                            colo
+                            style={styles.spin}
+                            date={this.state.date}
+                            value={this.state.date}
+                            onDateChange={(date) => {
+                                this.setState({ date: date })
+                            }}
+                        />
 
-                    <Text style={styles.inputTitle}>Nombre del Evento</Text>
-                    <TextInput
-                        style={{ top: HEIGHT / 100, height: 40, borderColor: 'gray', borderWidth: 1 }}
-                        autoCapitalize="words"
-                        onChangeText={this.onChangeTitle}
-                        value={this.state.title}
-                    ></TextInput>
-
-
-                    <Text style={styles.inputTitle2}>Descripción</Text>
-                    <TextInput
-                        style={{ top: HEIGHT / 30, height: HEIGHT / 5, borderColor: 'gray', borderWidth: 1 }}
-                        autoCapitalize="sentences"
-                        multiline={true}
-                        onChangeText={this.onChangeDes}
-                        value={this.state.description}
-                    />
-                    <DatePicker
-                        style={styles.spin}
-                        date={this.state.date}
-                        value = {this.state.date}
-                        onDateChange={(date) => {
-                         this.setState({ date: date })}}
-                    />
-
-
+                    
                 </ScrollView>
+                
 
                 <TouchableOpacity style={styles.button}
                     onPress={() => { this.crear(latitude, longitud, this.state.title, this.state.description) }}>
@@ -279,7 +282,9 @@ const styles = StyleSheet.create({
     spin: {
         top: HEIGHT / 25,
         width: WIDTH,
-        height: 200,
+        height: HEIGHT/5,
+        justifyContent: "center",
+        alignContent: "center"
 
     }
 });

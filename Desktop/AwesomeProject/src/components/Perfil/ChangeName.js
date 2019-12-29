@@ -44,6 +44,7 @@ export default class ChangeName extends Component {
                     <Text style={{ color: "#414959", fontSize: 30, fontWeight: "700", left: WIDTH/10, top: HEIGHT / 20 }}>Nombre</Text>
                     <TextInput
                         placeholder={name}
+                        placeholderTextColor= '#ccc'
                         style={styles.input}
                         autoCapitalize='words'
                         onChangeText={this.onChangeText}

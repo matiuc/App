@@ -4,7 +4,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View, KeyboardAvoidingView 
 } from 'react-native';
 import * as firebase from "firebase"
 
@@ -32,8 +32,9 @@ class Login extends React.Component {
                 <View style={styles.errorMessage}>
                     {this.state.errorMessage && <Text style={styles.error}>{this.state.errorMessage}</Text>}
                 </View>
-
+                <KeyboardAvoidingView   behavior="position" enabled>
                 <View style={styles.form}>
+                
                     <View>
                         <Text style={styles.inputTitle}>Email Address</Text>
                         <TextInput
@@ -43,7 +44,8 @@ class Login extends React.Component {
                             value={this.state.email}
                         ></TextInput>
                     </View>
-
+                    
+                    
                     <View style={{ marginTop: 32 }}>
                         <Text style={styles.inputTitle}>Password</Text>
                         <TextInput
@@ -54,7 +56,9 @@ class Login extends React.Component {
                             value={this.state.password}
                         ></TextInput>
                     </View>
+                    
                 </View>
+                </KeyboardAvoidingView>
 
                 <TouchableOpacity style={styles.button} onPress={this.handleLogin}>
                     <Text style={{ color: "#FFF", fontWeight: "500" }}>Sign in</Text>

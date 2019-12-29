@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, Image, Dimensions, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { StyleSheet, View, Text, Image, Dimensions, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView } from 'react-native';
 
 import * as firebase from "firebase";
 const WIDTH = Dimensions.get('window').width
@@ -46,7 +46,6 @@ export default class ChangeName extends Component {
         const mail = this.props.navigation.getParam('email', 'NO-Mail');
 
         return (
-
             <View style={{ flex: 1 }}>
                 <TouchableOpacity style={styles.back} onPress={() => this.props.navigation.navigate("Perfil")}>
                     <Image source={require('AwesomeProject/assets/back.png')}
@@ -63,9 +62,10 @@ export default class ChangeName extends Component {
 
 
                 </View>
-                <View style={{ flex: 1, }}>
+                <KeyboardAvoidingView   behavior="position" enabled style={{ flex:1 }}>
                     <Text style={{ color: "#414959", fontSize: 25, fontWeight: "700", left: WIDTH / 10, top: HEIGHT / 20 }}>Email Nuevo</Text>
                     <TextInput
+                        placeholderTextColor= '#ccc'
                         style={styles.input}
                         placeholder={mail}
                         autoCapitalize='none'
@@ -73,8 +73,12 @@ export default class ChangeName extends Component {
                         value={this.state.mail}
 
                     ></TextInput>
+                 
+
                     <Text style={{ color: "#414959", fontSize: 25, fontWeight: "700", left: WIDTH / 10, top: HEIGHT / 12 }}>Contraseña Actual</Text>
                     <TextInput
+                        placeholderTextColor= '#ccc'
+                        placeholder={"***********"}
                         style={styles.input2}
                         autoCapitalize='none'
                         secureTextEntry={true}
@@ -82,7 +86,7 @@ export default class ChangeName extends Component {
                         value={this.state.pass}
 
                     ></TextInput>
-                </View>
+                </KeyboardAvoidingView>
                 <View style={{ flex: 1, flexDirection: 'row' }}>
                     <View style={{ flex: 1, justifyContent: 'flex-start', flexDirection: 'row' }}>
 
@@ -95,9 +99,11 @@ export default class ChangeName extends Component {
                             <Text style={{ color: "#FFF", fontWeight: "500", }}>Cambiar Email</Text>
                         </TouchableOpacity>
                     </View>
+                    
                 </View>
-
             </View>
+            
+            
         );
     }
 }

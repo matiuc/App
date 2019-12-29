@@ -4,7 +4,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View, KeyboardAvoidingView
 } from 'react-native';
 import * as firebase from "firebase"
 
@@ -44,7 +44,7 @@ class Register extends React.Component {
         <View style={styles.errorMessage}>
           {this.state.errorMessage && <Text style={styles.error}>{this.state.errorMessage}</Text>}
         </View>
-
+        <KeyboardAvoidingView   behavior="position" enabled>
         <View style={styles.form}>
           <View>
             <Text style={styles.inputTitle}>Full Name</Text>
@@ -77,6 +77,7 @@ class Register extends React.Component {
             ></TextInput>
           </View>
         </View>
+        </KeyboardAvoidingView>
         <TouchableOpacity style={styles.button} onPress={this.handleSignUp}>
           <Text style={{ color: "#FFF", fontWeight: "500" }}>Sign up</Text>
         </TouchableOpacity>

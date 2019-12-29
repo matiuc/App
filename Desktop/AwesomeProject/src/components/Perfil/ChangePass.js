@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, View, Text, Image, Dimensions, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { StyleSheet, View, Text, Image, Dimensions, TouchableOpacity, TextInput, Alert, KeyboardAvoidingView  } from 'react-native';
 
 import * as firebase from "firebase";
 const WIDTH = Dimensions.get('window').width
@@ -57,9 +57,11 @@ export default class ChangeName extends Component {
 
                     
                 </View>
-                <View style={{flex: 1, }}>
+                <KeyboardAvoidingView   behavior="position" enabled style={{ flex:1 }}>
                 <Text style={{ color: "#414959", fontSize: 25, fontWeight: "700", left: WIDTH / 10, top: HEIGHT / 20 }}>Contraseña Actual</Text>
                     <TextInput
+                        placeholderTextColor= '#ccc'
+                        placeholder={"********"}
                         style={styles.input}
                         autoCapitalize='none'
                         secureTextEntry={true}
@@ -69,6 +71,8 @@ export default class ChangeName extends Component {
                     ></TextInput>
                 <Text style={{ color: "#414959", fontSize: 25, fontWeight: "700", left: WIDTH / 10, top: HEIGHT / 12 }}>Contraseña Nueva</Text>
                     <TextInput
+                        placeholderTextColor= '#ccc'
+                        placeholder={"********"}
                         style={styles.input2}
                         autoCapitalize='none'
                         secureTextEntry={true}
@@ -76,7 +80,7 @@ export default class ChangeName extends Component {
                         value={this.state.newPass}
 
                     ></TextInput>
-                </View>
+                </KeyboardAvoidingView>
                 <View style={{ flex: 1, flexDirection: 'row' }}>
                     <View style={{ flex: 1, justifyContent: 'flex-start', flexDirection: 'row' }}>
 

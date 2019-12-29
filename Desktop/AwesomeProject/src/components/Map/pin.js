@@ -8,7 +8,7 @@ import {
     TouchableOpacity,
     Alert,
     Button,
-    TextInput, ActivityIndicator, ScrollView, StatusBar, FlatList
+    TextInput, ActivityIndicator, ScrollView, StatusBar, FlatList, KeyboardAvoidingView
 } from 'react-native';
 import Icon from 'react-native-ionicons';
 import nextId, { setPrefix } from "react-id-generator";
@@ -342,7 +342,8 @@ export default class Pin extends React.Component {
 
 
                 </ScrollView>
-                <View style={{
+                <KeyboardAvoidingView   behavior="position" enabled>
+                    <View style={{
                     backgroundColor: "black", height: HEIGHT / 13, flexDirection: 'column',
                     justifyContent: 'center', alignItems: 'center'
                 }}>
@@ -366,10 +367,11 @@ export default class Pin extends React.Component {
 
                         </TouchableOpacity>
                     </View>
+                    </View>
 
 
 
-                </View>
+                </KeyboardAvoidingView>
 
 
 
