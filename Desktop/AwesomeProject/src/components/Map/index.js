@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { StyleSheet, View, TouchableOpacity, Image, Dimensions, Text, SafeAreaView, ScrollView } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
-import {createDrawerNavigator, DrawerItems, DrawerActions} from 'react-navigation-drawer';
+import { createDrawerNavigator, DrawerItems, DrawerActions } from 'react-navigation-drawer';
 
 import Search from '../Search';
 import * as firebase from "firebase";
@@ -16,47 +16,119 @@ export default class Map extends Component {
   state = {
     region: null,
     destination: null,
-    markers: []
+    markers: [],
+    filtro1: true,
+    filtro2: false,
+    filtro3: false,
   };
   async componentDidMount() {
     json = await
-    Geolocation.getCurrentPosition(
-      ({ coords: { latitude, longitude } }) => {
-        this.setState({
-          region:
-          {
-            latitude,
-            longitude,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005
+      Geolocation.getCurrentPosition(
+        ({ coords: { latitude, longitude } }) => {
+          this.setState({
+            region:
+            {
+              latitude,
+              longitude,
+              latitudeDelta: 0.005,
+              longitudeDelta: 0.005
+            }
+          })
+        }, //Succes
+        () => { }, //Error
+        {
+          timeout: 2000,
+          enableHighAccuracy: true,
+          maximumAge: 1000,
+        }
+      );
+    if (this.state.filtro1) {
+      const db = firebase.database()
+      const categoria = db.ref("Pins")
+      const query = categoria.orderByChild("categoria")
+        .equalTo("Recreacion").once("value", (data) => {
+          var json = data.toJSON()
+          for (key in json) {
+            this.setState({
+              markers: [
+                ...this.state.markers,
+                {
+                  coordinate: {
+                    latitude: json[key]["latitude"],
+                    longitude: json[key]["longitud"]
+                  },
+                  id: json[key]["id"]
+
+                }
+              ]
+            });
           }
         })
-      }, //Succes
-      () => { }, //Error
-      {
-        timeout: 2000,
-        enableHighAccuracy: true,
-        maximumAge: 1000,
-      }
-    );
-    firebase.database().ref("Pins").on("value", (data)=> {
-      var json = data.toJSON()
-      for (key in json) {
-        this.setState({
-          markers: [
-            ...this.state.markers,
-            {
-              coordinate: {
-                latitude: json[key]["latitude"],
-                longitude: json[key]["longitud"]
-              },
-              id: json[key]["id"]
 
-            }
-          ]
-        });
-     }
-    })
+    } if (this.state.filtro2) {
+      const db = firebase.database()
+      const categoria = db.ref("Pins")
+      const query = categoria.orderByChild("categoria")
+        .equalTo("Musica").once("value", (data) => {
+          var json = data.toJSON()
+          for (key in json) {
+            this.setState({
+              markers: [
+                ...this.state.markers,
+                {
+                  coordinate: {
+                    latitude: json[key]["latitude"],
+                    longitude: json[key]["longitud"]
+                  },
+                  id: json[key]["id"]
+
+                }
+              ]
+            });
+          }
+        })
+    } if (this.state.filtro3) {
+      const db = firebase.database()
+      const categoria = db.ref("Pins")
+      const query = categoria.orderByChild("nombre")
+        .equalTo("LollA").once("value", (data) => {
+          var json = data.toJSON()
+          for (key in json) {
+            this.setState({
+              markers: [
+                ...this.state.markers,
+                {
+                  coordinate: {
+                    latitude: json[key]["latitude"],
+                    longitude: json[key]["longitud"]
+                  },
+                  id: json[key]["id"]
+
+                }
+              ]
+            });
+          }
+        })
+    } else {
+      firebase.database().ref("Pins").on("value", (data) => {
+        var json = data.toJSON()
+        for (key in json) {
+          this.setState({
+            markers: [
+              ...this.state.markers,
+              {
+                coordinate: {
+                  latitude: json[key]["latitude"],
+                  longitude: json[key]["longitud"]
+                },
+                id: json[key]["id"]
+
+              }
+            ]
+          });
+        }
+      })
+    }
   };
   onPress = () => {
     Geolocation.getCurrentPosition(
@@ -116,15 +188,17 @@ export default class Map extends Component {
     alert(this.state.userLocation)
   };
   handlePress = () => {
-    this.props.navigation.navigate("PinInfo", 
-    { latitude: this.state.region.latitude, 
-    longitud: this.state.region.longitude });
+    this.props.navigation.navigate("PinInfo",
+      {
+        latitude: this.state.region.latitude,
+        longitud: this.state.region.longitude
+      });
   }
   render() {
     const { region } = this.state;
 
     return (<View style={{ flex: 1 }}>
-      
+
       <TouchableOpacity style={styles.button} onPress={this.onPress}>
         <Image source={require('AwesomeProject/assets/arrow.png')}
 
@@ -136,8 +210,8 @@ export default class Map extends Component {
           style={{ width: 60, height: 60 }} />
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button5} onPress={() => 
-      this.props.navigation.navigate("Buscar")}>
+      <TouchableOpacity style={styles.button5} onPress={() =>
+        this.props.navigation.navigate("Buscar")}>
         <Image source={require('AwesomeProject/assets/search.png')}
 
           style={{ width: 60, height: 60 }} />
@@ -160,23 +234,23 @@ export default class Map extends Component {
       >
         {this.state.markers.map((marker) => {
           return (
-            <Marker identifier = {marker.identifier}
-            coordinate = {marker.coordinate}
-            onPress = {()=>{this.props.navigation.navigate("Pin", {id: marker.id})}}>
+            <Marker identifier={marker.identifier}
+              coordinate={marker.coordinate}
+              onPress={() => { this.props.navigation.navigate("Pin", { id: marker.id }) }}>
               <View style={styles.marker}>
               </View>
             </Marker>
           )
         })}
       </MapView>
-      
+
       <View style={styles.mapMarkerContainer}>
         <Text style={{
           fontFamily: 'fontawesome', fontSize: 40, color:
             "#ad1f1f"
         }}>&#xf041;</Text>
       </View>
-      <Search onLocationSelected={this.handleLocationSelected}/>
+      <Search onLocationSelected={this.handleLocationSelected} />
     </View>);
   }
 }
@@ -198,7 +272,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: 50,
     height: 50,
-    bottom: HEIGHT / 7.36 ,
+    bottom: HEIGHT / 7.36,
     left: WIDTH / 20,
     borderRadius: 50,
     backgroundColor: 'white',
@@ -214,7 +288,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: 45,
     height: 45,
-    bottom: HEIGHT / 7.36 ,
+    bottom: HEIGHT / 7.36,
     right: WIDTH / 20,
     borderRadius: 50,
     backgroundColor: 'white',

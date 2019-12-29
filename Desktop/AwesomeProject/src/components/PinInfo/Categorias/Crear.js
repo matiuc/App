@@ -89,7 +89,7 @@ export default class Create extends React.Component {
     };
 
 
-    crear = (latitude, longitud, nombre, descripcion) => {
+    crear = (latitude, longitud, nombre, descripcion, categoria) => {
         // Alert.alert(this.state.latitude)
         this.uriToBlob(this.state.avatarSource.uri).then(async (resolve) => {
             pinId = uuid.v1();
@@ -101,7 +101,7 @@ export default class Create extends React.Component {
                     longitud: longitud,
                     nombre: nombre,
                     descripcion: descripcion,
-                    categoria: "Recreacion",
+                    categoria: categoria,
                     id: pinId,
                     photoUrl: url,
                     userId: userId,
@@ -157,40 +157,43 @@ export default class Create extends React.Component {
                 </View>
 
                 <ScrollView style={styles.MainContainer}>
-                        
-                        <Text style={styles.inputTitle}>Nombre del Evento</Text>
-                        <TextInput
-                            style={{ top: HEIGHT / 100, height: 40, borderColor: 'gray', borderWidth: 1 }}
-                            autoCapitalize="words"
-                            onChangeText={this.onChangeTitle}
-                            value={this.state.title}
-                        ></TextInput>
-                        
-                        <Text style={styles.inputTitle2}>Descripción</Text>
-                        <TextInput
-                            style={{ top: HEIGHT / 30, height: HEIGHT / 5, borderColor: 'gray', borderWidth: 1 }}
-                            autoCapitalize="sentences"
-                            multiline={true}
-                            onChangeText={this.onChangeDes}
-                            value={this.state.description}
-                        />
-                        <DatePicker
-                            textColor="#333"
-                            colo
-                            style={styles.spin}
-                            date={this.state.date}
-                            value={this.state.date}
-                            onDateChange={(date) => {
-                                this.setState({ date: date })
-                            }}
-                        />
 
-                    
+                    <Text style={styles.inputTitle}>Nombre del Evento</Text>
+                    <TextInput
+                        style={{ top: HEIGHT / 100, height: 40, borderColor: 'gray', borderWidth: 1 }}
+                        autoCapitalize="words"
+                        onChangeText={this.onChangeTitle}
+                        value={this.state.title}
+                    ></TextInput>
+
+                    <Text style={styles.inputTitle2}>Descripción</Text>
+                    <TextInput
+                        style={{ top: HEIGHT / 30, height: HEIGHT / 5, borderColor: 'gray', borderWidth: 1 }}
+                        autoCapitalize="sentences"
+                        multiline={true}
+                        onChangeText={this.onChangeDes}
+                        value={this.state.description}
+                    />
+                    <DatePicker
+                        textColor="#333"
+                        colo
+                        style={styles.spin}
+                        date={this.state.date}
+                        value={this.state.date}
+                        onDateChange={(date) => {
+                            this.setState({ date: date })
+                        }}
+                    />
+
+
                 </ScrollView>
-                
+
 
                 <TouchableOpacity style={styles.button}
-                    onPress={() => { this.crear(latitude, longitud, this.state.title, this.state.description) }}>
+                    onPress={() => {
+                        this.crear(latitude, longitud, this.state.title,
+                            this.state.description, categoria)
+                    }}>
                     <Text style={{ color: "#FFF", fontWeight: "500" }}>Crear</Text>
                 </TouchableOpacity>
 
@@ -282,7 +285,7 @@ const styles = StyleSheet.create({
     spin: {
         top: HEIGHT / 25,
         width: WIDTH,
-        height: HEIGHT/5,
+        height: HEIGHT / 5,
         justifyContent: "center",
         alignContent: "center"
 
