@@ -11,9 +11,8 @@ import {
     Alert,
     Button,
     TextInput, ActivityIndicator, ScrollView,
-    KeyboardAvoidingView
+    KeyboardAvoidingView, Picker
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
 
 import DatePicker from 'react-native-date-picker';
 
@@ -36,7 +35,7 @@ export default class Create extends React.Component {
         errorMessage: null,
         mail: '',
         date: new Date(),
-
+        comuna: '',
         show: false,
         avatarSource: "",
 
@@ -89,8 +88,68 @@ export default class Create extends React.Component {
     };
 
 
-    crear = (latitude, longitud, nombre, descripcion, categoria) => {
-        // Alert.alert(this.state.latitude)
+    crear = (latitude, longitud, nombre, descripcion, categoria, comuna) => {
+        const fecha = this.state.date.toString().split(" ")
+        var dia = ""
+        var mes = ""
+        const dia_numero = fecha[2]
+        const año = fecha[3]
+        const hora = fecha[4].split(":")
+        const h = hora[0]
+        const m = hora[1]
+        if (fecha[0] === "Sun"){
+            dia = "Domingo" 
+        }if (fecha[0] === "Mon"){
+            dia = "Lunes" 
+        }if (fecha[0] === "Tue"){
+            dia = "Martes" 
+        }if (fecha[0] === "Wed"){
+            dia = "Miércoles" 
+        }if (fecha[0] === "Thu"){
+            dia = "Jueves" 
+        }if (fecha[0] === "Fri"){
+            dia = "Viernes" 
+        }if (fecha[0] === "Sat"){
+            dia = "Sábado" 
+        }if (fecha[1] === "Dec"){
+            mes = "Diciembre" 
+        }if (fecha[1] === "Jan"){
+            mes = "Enero" 
+        }if (fecha[1] === "Feb"){
+            mes = "Febrero" 
+        }if (fecha[1] === "Mar"){
+            mes = "Marzo" 
+        }if (fecha[1] === "Apr"){
+            mes = "Abril" 
+        }if (fecha[1] === "May"){
+            mes = "Mayo" 
+        }if (fecha[1] === "Jun"){
+            mes = "Junio" 
+        }if (fecha[1] === "Jul"){
+            mes = "Julio" 
+        }if (fecha[1] === "Aug"){
+            mes = "Agosto" 
+        }if (fecha[1] === "Sep"){
+            mes = "Septiembre" 
+        }if (fecha[1] === "Oct"){
+            mes = "Octubre" 
+        }if (fecha[1] === "Nov"){
+            mes = "Noviembre" 
+        }
+        const fecha_actualizada= dia.toString()+" "+dia_numero.toString()+" de "+mes.toString()+ 
+        " " + año.toString()
+        const time = h.toString() + ":"+ m.toString()
+        const comuna_categoria = comuna.toString()+"_"+categoria.toString()
+        const comuna_fecha = comuna.toString()+"_"+fecha[1].toString()+dia_numero.toString()
+        +año.toString()
+        const categoria_fecha = categoria.toString()+"_"+fecha[1].toString()+dia_numero.toString()
+        +año.toString()
+        const comuna_categoria_fecha = comuna.toString()+"_"+categoria.toString()+
+        "_"+fecha[1].toString()+dia_numero.toString()
+        +año.toString()
+        const fecha_filtro = fecha[1].toString()+dia_numero.toString()
+        +año.toString()
+        
         this.uriToBlob(this.state.avatarSource.uri).then(async (resolve) => {
             pinId = uuid.v1();
             const userId = firebase.auth().currentUser.uid;
@@ -107,6 +166,14 @@ export default class Create extends React.Component {
                     userId: userId,
                     likes: [],
                     comments: [],
+                    date: fecha_actualizada,
+                    time: time,
+                    comuna: comuna,
+                    comuna_categoria: comuna_categoria,
+                    comuna_fecha: comuna_fecha,
+                    categoria_fecha: categoria_fecha,
+                    comuna_categoria_fecha: comuna_categoria_fecha,
+                    fecha: fecha_filtro
                 }).catch((error) => {
                     console.log(error.message)
                 })
@@ -174,9 +241,20 @@ export default class Create extends React.Component {
                         onChangeText={this.onChangeDes}
                         value={this.state.description}
                     />
+                        <Text style={styles.inputTitle3}>Comuna</Text>
+                        <Picker
+                            style={styles.picker}
+                            selectedValue={this.state.comuna}
+                            onValueChange={(itemValue, itemIndex) => this.setState({ comuna: itemValue })}
+                        >
+                            <Picker.Item label="Cualquiera" value="" />
+                            <Picker.Item label="La Reina" value="La Reina" />
+                            <Picker.Item label="Ñuñoa" value="Nunoa" />
+                            <Picker.Item label="Providencia" value="Providencia" />
+                        </Picker>
+                        <Text style={styles.inputTitle4}>Fecha</Text>
                     <DatePicker
                         textColor="#333"
-                        colo
                         style={styles.spin}
                         date={this.state.date}
                         value={this.state.date}
@@ -185,14 +263,13 @@ export default class Create extends React.Component {
                         }}
                     />
 
-
                 </ScrollView>
 
 
                 <TouchableOpacity style={styles.button}
                     onPress={() => {
                         this.crear(latitude, longitud, this.state.title,
-                            this.state.description, categoria)
+                            this.state.description, categoria, this.state.comuna)
                     }}>
                     <Text style={{ color: "#FFF", fontWeight: "500" }}>Crear</Text>
                 </TouchableOpacity>
@@ -251,6 +328,18 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textTransform: "uppercase"
     },
+    inputTitle3: {
+        top: HEIGHT / 11,
+        color: "#8A8F9E",
+        fontSize: 16,
+        textTransform: "uppercase"
+    },
+    inputTitle4: {
+        top: 0,
+        color: "#8A8F9E",
+        fontSize: 16,
+        textTransform: "uppercase"
+    },
     button: {
         bottom: HEIGHT / 30,
         marginHorizontal: 30,
@@ -283,11 +372,13 @@ const styles = StyleSheet.create({
         justifyContent: "center"
     },
     spin: {
-        top: HEIGHT / 25,
+        top: 0,
         width: WIDTH,
         height: HEIGHT / 5,
         justifyContent: "center",
         alignContent: "center"
 
+    },
+    picker: {
     }
 });

@@ -17,10 +17,30 @@ export default class Map extends Component {
     region: null,
     destination: null,
     markers: [],
-    filtro1: true,
-    filtro2: false,
-    filtro3: false,
+    filtro1: "",
+    filtro2: "",
+    filtro3: "",
   };
+
+  Bdd = (data) => {
+    var json = data.toJSON()
+    for (key in json) {
+      this.setState({
+        markers: [
+          ...this.state.markers,
+          {
+            coordinate: {
+              latitude: json[key]["latitude"],
+              longitude: json[key]["longitud"]
+            },
+            id: json[key]["id"]
+
+          }
+        ]
+      });
+    };
+  }
+
   async componentDidMount() {
     json = await
       Geolocation.getCurrentPosition(
@@ -42,91 +62,231 @@ export default class Map extends Component {
           maximumAge: 1000,
         }
       );
-    if (this.state.filtro1) {
+    if ((this.state.filtro1 !== "") && (this.state.filtro2 !== "") && (this.state.filtro3 !== "")) {
       const db = firebase.database()
       const categoria = db.ref("Pins")
-      const query = categoria.orderByChild("categoria")
-        .equalTo("Recreacion").once("value", (data) => {
-          var json = data.toJSON()
-          for (key in json) {
-            this.setState({
-              markers: [
-                ...this.state.markers,
-                {
-                  coordinate: {
-                    latitude: json[key]["latitude"],
-                    longitude: json[key]["longitud"]
-                  },
-                  id: json[key]["id"]
-
-                }
-              ]
-            });
-          }
-        })
-
-    } if (this.state.filtro2) {
-      const db = firebase.database()
-      const categoria = db.ref("Pins")
-      const query = categoria.orderByChild("categoria")
-        .equalTo("Musica").once("value", (data) => {
-          var json = data.toJSON()
-          for (key in json) {
-            this.setState({
-              markers: [
-                ...this.state.markers,
-                {
-                  coordinate: {
-                    latitude: json[key]["latitude"],
-                    longitude: json[key]["longitud"]
-                  },
-                  id: json[key]["id"]
-
-                }
-              ]
-            });
-          }
-        })
-    } if (this.state.filtro3) {
-      const db = firebase.database()
-      const categoria = db.ref("Pins")
-      const query = categoria.orderByChild("nombre")
-        .equalTo("LollA").once("value", (data) => {
-          var json = data.toJSON()
-          for (key in json) {
-            this.setState({
-              markers: [
-                ...this.state.markers,
-                {
-                  coordinate: {
-                    latitude: json[key]["latitude"],
-                    longitude: json[key]["longitud"]
-                  },
-                  id: json[key]["id"]
-
-                }
-              ]
-            });
-          }
-        })
-    } else {
-      firebase.database().ref("Pins").on("value", (data) => {
-        var json = data.toJSON()
-        for (key in json) {
-          this.setState({
-            markers: [
-              ...this.state.markers,
-              {
-                coordinate: {
-                  latitude: json[key]["latitude"],
-                  longitude: json[key]["longitud"]
-                },
-                id: json[key]["id"]
-
-              }
-            ]
-          });
+      var actual = new Date()
+      var suma = 0
+      if (this.state.filtro3 === "Hoy") {
+        suma = 0
+      } if (this.state.filtro3 === "Mañana") {
+        suma = 1
+      } if (this.state.filtro3 === "Esta Semana") {
+        day = actual.toString().split(" ")[0]
+        sum = 0
+        if (day === "Mon") {
+          sum = 7
+        } if (day === "Tue") {
+          sum = 6
+        } if (day === "Wed") {
+          sum = 5
+        } if (day === "Thu") {
+          sum = 4
+        } if (day === "Fri") {
+          sum = 3
+        } if (day === "Sat") {
+          sum = 2
+        } if (day === "Sun") {
+          sum = 1
         }
+        for (var i = 0; i < sum; i++) {
+          
+          fecha = actual.toString().split(" ")
+          const filtro = this.state.filtro2.toString() + "_" +
+            this.state.filtro1.toString() + "_" +
+            fecha[1].toString() + fecha[2].toString() + fecha[3].toString()
+          const query = categoria.orderByChild("comuna_categoria_fecha")
+            .equalTo(filtro).once("value", (data) => {
+              this.Bdd(data)
+            })
+            actual.setDate(actual.getDate() + 1)
+        }
+        return
+      }
+      actual.setDate(actual.getDate() + suma)
+      fecha = actual.toString().split(" ")
+      const filtro = this.state.filtro2.toString() + "_" +
+        this.state.filtro1.toString() + "_" +
+        fecha[1].toString() + fecha[2].toString() + fecha[3].toString()
+      const query = categoria.orderByChild("comuna_categoria_fecha")
+        .equalTo(filtro).once("value", (data) => {
+          this.Bdd(data)
+        })
+    }
+    if ((this.state.filtro1 !== "") && (this.state.filtro2 !== "") && !(this.state.filtro3 !== "")) {
+      const db = firebase.database()
+      const categoria = db.ref("Pins")
+      const query = categoria.orderByChild("comuna_categoria")
+        .equalTo(this.state.filtro2.toString() + "_" + this.state.filtro1.toString()).once("value", (data) => {
+          this.Bdd(data)
+        })
+    }
+    if ((this.state.filtro1 !== "") && (this.state.filtro3 !== "") && !(this.state.filtro2 !== "")) {
+      const db = firebase.database()
+      const categoria = db.ref("Pins")
+      var actual = new Date()
+      var suma = 0
+      if (this.state.filtro3 === "Hoy") {
+        suma = 0
+      } if (this.state.filtro3 === "Mañana") {
+        suma = 1
+      } if (this.state.filtro3 === "Esta Semana") {
+        day = actual.toString().split(" ")[0]
+        sum = 0
+        if (day === "Mon") {
+          sum = 7
+        } if (day === "Tue") {
+          sum = 6
+        } if (day === "Wed") {
+          sum = 5
+        } if (day === "Thu") {
+          sum = 4
+        } if (day === "Fri") {
+          sum = 3
+        } if (day === "Sat") {
+          sum = 2
+        } if (day === "Sun") {
+          sum = 1
+        }
+        for (var i = 0; i < sum; i++) {
+          
+          fecha = actual.toString().split(" ")
+          console.log(fecha)
+          const filtro = this.state.filtro1.toString() + "_" +
+            fecha[1].toString() + fecha[2].toString() + fecha[3].toString()
+          const query = categoria.orderByChild("categoria_fecha")
+            .equalTo(filtro).once("value", (data) => {
+              this.Bdd(data)
+            })
+            actual.setDate(actual.getDate() + 1)
+        }
+        return
+      }
+      actual.setDate(actual.getDate() + suma)
+      fecha = actual.toString().split(" ")
+      const filtro = this.state.filtro1.toString() + "_" +
+        fecha[1].toString() + fecha[2].toString() + fecha[3].toString()
+      const query = categoria.orderByChild("categoria_fecha")
+        .equalTo(filtro).once("value", (data) => {
+          this.Bdd(data)
+        })
+    }
+    if ((this.state.filtro3 !== "") && (this.state.filtro2 !== "") && !(this.state.filtro1 !== "")) {
+      const db = firebase.database()
+      const categoria = db.ref("Pins")
+      var actual = new Date()
+      var suma = 0
+      if (this.state.filtro3 === "Hoy") {
+        suma = 0
+      } if (this.state.filtro3 === "Mañana") {
+        suma = 1
+      } if (this.state.filtro3 === "Esta Semana") {
+        day = actual.toString().split(" ")[0]
+        sum = 0
+        if (day === "Mon") {
+          sum = 7
+        } if (day === "Tue") {
+          sum = 6
+        } if (day === "Wed") {
+          sum = 5
+        } if (day === "Thu") {
+          sum = 4
+        } if (day === "Fri") {
+          sum = 3
+        } if (day === "Sat") {
+          sum = 2
+        } if (day === "Sun") {
+          sum = 1
+        }
+        for (var i = 0; i < sum; i++) {
+          
+          fecha = actual.toString().split(" ")
+          const filtro = this.state.filtro2.toString() + "_" +
+            fecha[1].toString() + fecha[2].toString() + fecha[3].toString()
+          const query = categoria.orderByChild("comuna_fecha")
+            .equalTo(filtro).once("value", (data) => {
+              this.Bdd(data)
+            })
+            actual.setDate(actual.getDate() + 1)
+        }
+        return
+      }
+      actual.setDate(actual.getDate() + suma)
+      fecha = actual.toString().split(" ")
+      const filtro = this.state.filtro2.toString() + "_" +
+        fecha[1].toString() + fecha[2].toString() + fecha[3].toString()
+      const query = categoria.orderByChild("comuna_fecha")
+        .equalTo(filtro).once("value", (data) => {
+          this.Bdd(data)
+        })
+    }
+    if ((this.state.filtro3 !== "") && !(this.state.filtro2 !== "") && !(this.state.filtro1 !== "")) {
+      const db = firebase.database()
+      const categoria = db.ref("Pins")
+      var actual = new Date()
+      var suma = 0
+      if (this.state.filtro3 === "Hoy") {
+        suma = 0
+      } if (this.state.filtro3 === "Mañana") {
+        suma = 1
+      } if (this.state.filtro3 === "Esta Semana") {
+        day = actual.toString().split(" ")[0]
+        sum = 0
+        if (day === "Mon") {
+          sum = 7
+        } if (day === "Tue") {
+          sum = 6
+        } if (day === "Wed") {
+          sum = 5
+        } if (day === "Thu") {
+          sum = 4
+        } if (day === "Fri") {
+          sum = 3
+        } if (day === "Sat") {
+          sum = 2
+        } if (day === "Sun") {
+          sum = 1
+        }
+        for (var i = 0; i < sum; i++) {
+          
+          fecha = actual.toString().split(" ")
+          const filtro = fecha[1].toString() + fecha[2].toString() + fecha[3].toString()
+          console.log(filtro)
+          const query = categoria.orderByChild("fecha")
+            .equalTo(filtro).once("value", (data) => {
+              this.Bdd(data)
+            })
+            actual.setDate(actual.getDate() + 1)
+        }
+        return
+      }
+      actual.setDate(actual.getDate() + suma)
+      fecha = actual.toString().split(" ")
+      const filtro = fecha[1].toString() + fecha[2].toString() + fecha[3].toString()
+      const query = categoria.orderByChild("fecha")
+        .equalTo(filtro).once("value", (data) => {
+          this.Bdd(data)
+        })
+    }
+    if ((this.state.filtro2 !== "") && !(this.state.filtro1 !== "") && !(this.state.filtro3 !== "")) {
+      const db = firebase.database()
+      const categoria = db.ref("Pins")
+      const query = categoria.orderByChild("comuna")
+        .equalTo(this.state.filtro2.toString()).once("value", (data) => {
+          this.Bdd(data)
+        })
+    }
+    if ((this.state.filtro1 !== "") && !(this.state.filtro2 !== "") && !(this.state.filtro3 !== "")) {
+      const db = firebase.database()
+      const categoria = db.ref("Pins")
+      const query = categoria.orderByChild("categoria")
+        .equalTo(this.state.filtro1.toString()).once("value", (data) => {
+          this.Bdd(data)
+        })
+    }
+    if (!(this.state.filtro1 !== "") && !(this.state.filtro2 !== "") && !(this.state.filtro3 !== "")) {
+      firebase.database().ref("Pins").on("value", (data) => {
+        this.Bdd(data)
       })
     }
   };
@@ -196,6 +356,11 @@ export default class Map extends Component {
   }
   render() {
     const { region } = this.state;
+    this.state.filtro2 = this.props.navigation.getParam('com', "");
+    this.state.filtro1 = this.props.navigation.getParam('cat', "");
+    this.state.filtro3 = this.props.navigation.getParam('prox', "");
+
+
 
     return (<View style={{ flex: 1 }}>
 

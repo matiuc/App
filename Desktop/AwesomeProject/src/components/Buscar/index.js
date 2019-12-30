@@ -24,12 +24,8 @@ export default class screen1 extends Component {
 
   };
   clickme = () => {
-    var data = this.state.categoria;
-    if (data == "Deporte") {
-      alert("Se selecciono deporte");
-    } else {
-      alert(data);
-    }
+    this.props.navigation.navigate("Mapa", { cat: this.state.categoria,
+    com: this.state.comuna, prox: this.state.proximidad })
 
   }
   handleBack = () => {
@@ -93,8 +89,8 @@ export default class screen1 extends Component {
             >
 
               <Picker.Item label="Cualquiera" value="" />
-              <Picker.Item label="En estos momentos" value="En estos momentos" />
               <Picker.Item label="Hoy" value="Hoy" />
+              <Picker.Item label="Mañana" value="Mañana" />
               <Picker.Item label="Esta Semana" value="Esta Semana" />
             </Picker>
 

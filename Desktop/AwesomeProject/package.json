@@ -25,6 +25,7 @@
     "firebase": "^7.5.0",
     "native-base": "^2.13.8",
     "react": "16.9.0",
+    "react-country-region-selector": "^1.4.7",
     "react-id-generator": "^3.0.0",
     "react-native": "0.61.4",
     "react-native-cached-image": "^1.4.3",
