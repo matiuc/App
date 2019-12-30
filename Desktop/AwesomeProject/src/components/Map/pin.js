@@ -27,6 +27,8 @@ export default class Pin extends React.Component {
 
     state = {
         title: '',
+        fecha: "",
+        time: "",
         description: '',
         categoria: '',
         errorMessage: null,
@@ -177,6 +179,7 @@ export default class Pin extends React.Component {
     }
 
     hanldeLike = async () => {
+        console.log(this.state.notlike, "LIKE")
         if (this.state.notlike) {
             firebase.database().ref('Pins/' + this.state.idPin).update({
                 likes: [
@@ -206,8 +209,9 @@ export default class Pin extends React.Component {
     async componentDidMount() {
         const userId = firebase.auth().currentUser.uid;
         const id = this.props.navigation.getParam('id', 'NO-ID');
-        firebase.database().ref("Pins").child(id).once("value", async (data) => {
+        firebase.database().ref("Pins").child(id).on("value", async (data) => {
             json = data.toJSON()
+            console.log(json)
             url = json["photoUrl"]
             title = json["nombre"]
             description = json["descripcion"]
@@ -215,6 +219,8 @@ export default class Pin extends React.Component {
             idcreator = json["userId"]
             likes = json["likes"]
             comments = json["comments"]
+            fecha = json["date"]
+            time = json["time"]
 
 
             await this.setState({
@@ -228,32 +234,48 @@ export default class Pin extends React.Component {
                 likes: [],
                 comments: [],
                 commentsDict: comments,
+                fecha: fecha,
+                time: time,
 
             });
+
+            likestoArray = await this.dictToarray(likes)
+            this.comprobation_like(userId)
             this.comprobation_delete(userId);
             likestoArray2 = await this.dictToarray2(comments)
 
+
+
         }
-        )
+        );
 
-        firebase.database().ref("Pins").child(id + "/comments").on("value", async (data) => {
-            json = data.toJSON()
-            await this.setState({
-                comments: [],
-                commentsDict: json,
 
-            });
-            likestoArray2 = await this.dictToarray2(json)
+        // firebase.database().ref("Pins").child(id + "/likes").on("value", async (data) => {
+        //     json = data.toJSON()
+        //     console.log(json, "likes")
+        //     await this.setState({
+        //         likes: [],
+        //     });
+        //     likestoArray = await this.dictToarray(json)
+        //     this.comprobation_like(userId);
+        // });
 
-        })
-        firebase.database().ref("Pins").child(id + "/likes").on("value", async (data) => {
-            json = data.toJSON()
-            await this.setState({
-                likes: [],
-            });
-            likestoArray = await this.dictToarray(json)
-            this.comprobation_like(userId);
-        })
+        // firebase.database().ref("Pins").child(id + "/comments").on("value", async (data) => {
+        //     json = data.toJSON()
+        //     await this.setState({
+        //         comments: [],
+        //         commentsDict: json,
+
+        //     });
+        //     console.log(json, "la")
+        //     if (json === undefined){
+        //         console.log(2)
+        //     }else{
+        //         console.log(1)
+        //         likestoArray2 = await this.dictToarray2(json)
+        //     }
+
+        // })
     }
 
     renderPost = (post) => {
@@ -322,6 +344,8 @@ export default class Pin extends React.Component {
 
                     </View>
                     <View>
+                        <Text style={styles.inputTitle2}>Fecha del evento: {this.state.fecha}</Text>
+                        <Text style={styles.inputTitle2}>Hora Inicio: {this.state.time}</Text>
                         <Text style={styles.inputTitle2}>{this.state.description}</Text>
                     </View>
                     <View style={{ flexDirection: "row", borderTopColor: "black", borderBottomWidth: 1, top: HEIGHT / 20 }}>
@@ -342,31 +366,31 @@ export default class Pin extends React.Component {
 
 
                 </ScrollView>
-                <KeyboardAvoidingView   behavior="position" enabled>
+                <KeyboardAvoidingView behavior="position" enabled>
                     <View style={{
-                    backgroundColor: "black", height: HEIGHT / 13, flexDirection: 'column',
-                    justifyContent: 'center', alignItems: 'center'
-                }}>
-                    <View style={{
-                        width: WIDTH / 1.4, height: HEIGHT / 20, backgroundColor: "white", borderRadius: 50, flexDirection: 'row',
+                        backgroundColor: "black", height: HEIGHT / 13, flexDirection: 'column',
                         justifyContent: 'center', alignItems: 'center'
                     }}>
-                        <TouchableOpacity onPress={this.handleImage}>
-                            <Icon name="images" size={40} color={"turquoise"} style={{ right: WIDTH / 12 }} />
+                        <View style={{
+                            width: WIDTH / 1.4, height: HEIGHT / 20, backgroundColor: "white", borderRadius: 50, flexDirection: 'row',
+                            justifyContent: 'center', alignItems: 'center'
+                        }}>
+                            <TouchableOpacity onPress={this.handleImage}>
+                                <Icon name="images" size={40} color={"turquoise"} style={{ right: WIDTH / 12 }} />
 
-                        </TouchableOpacity>
-                        <TextInput style={{ width: WIDTH / 1.6, height: HEIGHT / 21, backgroundColor: "white", borderRadius: 50, fontSize: 18, color: "#161F3D" }}
-                            placeholder={"Escribe tu comentario..."}
-                            onChangeText={this.onChangeMessage}
-                            value={this.state.message}
-                            ref={input => { this.textInput = input }}
-                        />
+                            </TouchableOpacity>
+                            <TextInput style={{ width: WIDTH / 1.6, height: HEIGHT / 21, backgroundColor: "white", borderRadius: 50, fontSize: 18, color: "#161F3D" }}
+                                placeholder={"Escribe tu comentario..."}
+                                onChangeText={this.onChangeMessage}
+                                value={this.state.message}
+                                ref={input => { this.textInput = input }}
+                            />
 
-                        <TouchableOpacity onPress={this.handleSend}>
-                            <Icon name="send" size={40} color={"turquoise"} style={{ left: WIDTH / 15 }} />
+                            <TouchableOpacity onPress={this.handleSend}>
+                                <Icon name="send" size={40} color={"turquoise"} style={{ left: WIDTH / 15 }} />
 
-                        </TouchableOpacity>
-                    </View>
+                            </TouchableOpacity>
+                        </View>
                     </View>
 
 
